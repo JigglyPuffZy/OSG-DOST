@@ -16,7 +16,7 @@ export const NAV_ITEMS = [
   { id: "settings", label: "Settings", icon: Settings },
 ]
 
-function SidebarContent({ page, onNavigate, user, onLogout, onCloseMobile, archivedCount = 0 }) {
+function SidebarContent({ page, onNavigate, user, onRequestLogout, onCloseMobile, archivedCount = 0 }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-3 border-b border-slate-100/80 px-5 py-5">
@@ -105,7 +105,7 @@ function SidebarContent({ page, onNavigate, user, onLogout, onCloseMobile, archi
           </div>
           <button
             type="button"
-            onClick={onLogout}
+            onClick={onRequestLogout}
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200/80 bg-white py-2 text-sm font-medium text-slate-600 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-600"
           >
             <LogOut className="h-4 w-4" />
@@ -121,7 +121,7 @@ export default function AppSidebar({
   page,
   onNavigate,
   user,
-  onLogout,
+  onRequestLogout,
   mobileOpen,
   onCloseMobile,
   archivedCount = 0,
@@ -133,7 +133,7 @@ export default function AppSidebar({
           page={page}
           onNavigate={onNavigate}
           user={user}
-          onLogout={onLogout}
+          onRequestLogout={onRequestLogout}
           archivedCount={archivedCount}
         />
       </aside>
@@ -151,7 +151,7 @@ export default function AppSidebar({
               page={page}
               onNavigate={onNavigate}
               user={user}
-              onLogout={onLogout}
+              onRequestLogout={onRequestLogout}
               onCloseMobile={onCloseMobile}
               archivedCount={archivedCount}
             />

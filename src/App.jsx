@@ -26,8 +26,10 @@ import {
   defaultSettings,
   initialsFromName,
   loadSettings,
+  PROFILE_AVATAR_URL,
   saveCases,
   saveSettings,
+  withProfileDefaults,
 } from "./utils/settings"
 import { isSupabaseConfigured, supabase } from "./lib/supabase"
 import {
@@ -74,6 +76,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const [editingCase, setEditingCase] = useState(null)
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingArchive, setPendingArchive] = useState(null)
+  const [pendingLogout, setPendingLogout] = useState(false)
 
   const skipSettingsFlash = useRef(true)
 
@@ -93,7 +96,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
       .then(([caseRows, profileSettings]) => {
         if (cancelled) return
         setCases(caseRows)
-        const merged = { ...defaultSettings, ...profileSettings }
+        const merged = withProfileDefaults(profileSettings)
         setSettings(merged)
         if (useRemote) {
           const start = merged.startPage || "dashboard"
@@ -135,8 +138,9 @@ function AppShell({ authUser, useRemote, onLogout }) {
       displayName: settings.displayName,
       role: settings.role,
       initials: initialsFromName(settings.displayName),
+      avatarUrl: settings.avatarUrl || PROFILE_AVATAR_URL,
     }),
-    [settings.displayName, settings.role],
+    [settings.displayName, settings.role, settings.avatarUrl],
   )
 
   const stats = useMemo(() => getCaseStats(cases), [cases])
@@ -243,6 +247,16 @@ function AppShell({ authUser, useRemote, onLogout }) {
     }
   }
 
+  const requestDelete = (item) => {
+    setPendingDelete(item)
+    if (filesCaseId === item.id) setFilesCaseId(null)
+  }
+
+  const requestArchive = (item) => {
+    setPendingArchive(item)
+    if (filesCaseId === item.id) setFilesCaseId(null)
+  }
+
   const confirmArchive = async () => {
     if (!pendingArchive) return
     setActionError("")
@@ -273,10 +287,11 @@ function AppShell({ authUser, useRemote, onLogout }) {
   }
 
   const handleSettingsChange = (next) => {
-    setSettings(next)
-    saveProfile(next)
+    const normalized = withProfileDefaults(next)
+    setSettings(normalized)
+    saveProfile(normalized)
       .then((savedProfile) => {
-        setSettings((current) => ({ ...current, ...savedProfile }))
+        setSettings((current) => withProfileDefaults({ ...current, ...savedProfile }))
         setSavedFlash(true)
         setTimeout(() => setSavedFlash(false), 1200)
       })
@@ -298,6 +313,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
   }
 
   const handleLogout = async () => {
+    setPendingLogout(false)
     await onLogout()
     setPage(() => {
       const start = settings.startPage || "dashboard"
@@ -336,7 +352,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
         page={page}
         onNavigate={handleNavigate}
         user={user}
-        onLogout={handleLogout}
+        onRequestLogout={() => setPendingLogout(true)}
         mobileOpen={mobileSidebar}
         onCloseMobile={() => setMobileSidebar(false)}
         archivedCount={stats.archived}
@@ -416,15 +432,15 @@ function AppShell({ authUser, useRemote, onLogout }) {
                     compact={settings.compactTable}
                     onView={(item) => setFilesCaseId(item.id)}
                     onEdit={openEdit}
-                    onDelete={setPendingDelete}
-                    onArchive={showArchivedPage ? undefined : setPendingArchive}
+                    onDelete={requestDelete}
+                    onArchive={showArchivedPage ? undefined : requestArchive}
                   />
                   <CaseCardList
                     cases={visibleCases}
                     onView={(item) => setFilesCaseId(item.id)}
                     onEdit={openEdit}
-                    onDelete={setPendingDelete}
-                    onArchive={showArchivedPage ? undefined : setPendingArchive}
+                    onDelete={requestDelete}
+                    onArchive={showArchivedPage ? undefined : requestArchive}
                   />
                 </>
               )}
@@ -450,8 +466,8 @@ function AppShell({ authUser, useRemote, onLogout }) {
           caseItem={filesCase}
           onClose={() => setFilesCaseId(null)}
           onEdit={openEdit}
-          onDelete={setPendingDelete}
-          onArchive={setPendingArchive}
+          onDelete={requestDelete}
+          onArchive={requestArchive}
         />
       )}
 
@@ -487,8 +503,18 @@ function AppShell({ authUser, useRemote, onLogout }) {
             : ""
         }
         confirmLabel="Archive"
+        confirmVariant="primary"
         onCancel={() => setPendingArchive(null)}
         onConfirm={confirmArchive}
+      />
+      <ConfirmDialog
+        open={pendingLogout}
+        title="Sign out?"
+        message="You will need to sign in again to access the case system."
+        confirmLabel="Sign out"
+        confirmVariant="primary"
+        onCancel={() => setPendingLogout(false)}
+        onConfirm={handleLogout}
       />
     </div>
   )

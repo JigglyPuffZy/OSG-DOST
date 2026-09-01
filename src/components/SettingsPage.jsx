@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 import Button from "./ui/Button"
 import UserAvatar from "./ui/UserAvatar"
-import { initialsFromName } from "../utils/settings"
+import { initialsFromName, PROFILE_AVATAR_URL } from "../utils/settings"
 
 function Toggle({ checked, onChange, label, hint }) {
   return (
@@ -56,6 +56,7 @@ export default function SettingsPage({
   const profileUser = {
     displayName: settings.displayName,
     initials: initialsFromName(settings.displayName),
+    avatarUrl: settings.avatarUrl || PROFILE_AVATAR_URL,
   }
 
   return (

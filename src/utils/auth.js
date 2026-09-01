@@ -1,3 +1,5 @@
+import { PROFILE_AVATAR_URL } from "./settings"
+
 export const SESSION_KEY = "osg-dost-session"
 
 export const DEFAULT_LOGIN_EMAIL = "admindost@gmail.com"
@@ -33,6 +35,7 @@ export function tryLocalLogin(email, password) {
       id: "local",
       email: DEFAULT_LOGIN_EMAIL,
       displayName: DEFAULT_DISPLAY_NAME,
+      avatarUrl: PROFILE_AVATAR_URL,
       local: true,
     }
     saveLocalSession(user)

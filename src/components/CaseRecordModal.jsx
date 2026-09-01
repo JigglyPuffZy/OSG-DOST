@@ -216,10 +216,7 @@ export default function CaseRecordModal({
             {caseItem.status !== "Archived" && onArchive ? (
               <Button
                 size="sm"
-                onClick={() => {
-                  onArchive(caseItem)
-                  onClose()
-                }}
+                onClick={() => onArchive(caseItem)}
               >
                 <Archive className="h-4 w-4" />
                 Archive
@@ -229,10 +226,7 @@ export default function CaseRecordModal({
               <Button
                 size="sm"
                 variant="danger"
-                onClick={() => {
-                  onDelete(caseItem)
-                  onClose()
-                }}
+                onClick={() => onDelete(caseItem)}
               >
                 <Trash2 className="h-4 w-4" />
                 Delete

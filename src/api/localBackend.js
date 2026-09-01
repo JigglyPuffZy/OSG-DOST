@@ -7,6 +7,7 @@ import {
   loadSettings,
   saveCases,
   saveSettings,
+  withProfileDefaults,
 } from "../utils/settings"
 
 const LOCAL_PROFILE_KEY = "osg-dost-local-profile"
@@ -131,11 +132,7 @@ export async function ensureLocalProfile(user) {
   try {
     const raw = localStorage.getItem(LOCAL_PROFILE_KEY)
     if (raw) {
-      const merged = { ...defaultSettings, ...JSON.parse(raw) }
-      if (/Front-end Developer|UI\/UX Designer|Video Editor/i.test(merged.role || "")) {
-        merged.role = defaultSettings.role
-      }
-      return merged
+      return withProfileDefaults(JSON.parse(raw))
     }
   } catch {
     /* use defaults */
@@ -149,21 +146,21 @@ export async function ensureLocalProfile(user) {
         : user?.email?.split("@")[0] || defaultSettings.displayName,
   }
   localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(profile))
-  return profile
+  return withProfileDefaults(profile)
 }
 
 export async function saveLocalProfile(settings) {
-  const payload = {
+  const payload = withProfileDefaults({
     displayName: settings.displayName,
     role: settings.role,
     organization: settings.organization,
     startPage: settings.startPage,
     compactTable: settings.compactTable,
     keepLocalData: settings.keepLocalData,
-  }
+  })
   localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(payload))
-  saveSettings(settings)
-  return { ...defaultSettings, ...payload }
+  saveSettings(payload)
+  return payload
 }
 
 export function resetMemoryStore() {
