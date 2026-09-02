@@ -1233,18 +1233,6 @@ select.field-input {
     0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-.settings-card-shine {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    125deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    transparent 45%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
-
 .settings-card-header {
   position: relative;
   z-index: 1;
@@ -1274,40 +1262,10 @@ select.field-input {
   line-height: 1.4;
 }
 
-.settings-card-icon {
-  display: flex;
-  height: 2.25rem;
-  width: 2.25rem;
+.settings-card-icon-simple {
   flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-}
-
-.settings-card-icon-dost {
-  background: linear-gradient(135deg, #e0f6fe, #b8e8fa);
-  color: #007db3;
-}
-
-.settings-card-icon-sky {
-  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
-  color: #0284c7;
-}
-
-.settings-card-icon-violet {
-  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-  color: #6d28d9;
-}
-
-.settings-card-icon-amber {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  color: #b45309;
-}
-
-.settings-card-icon-emerald {
-  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-  color: #047857;
+  margin-top: 0.125rem;
+  color: #0099d6;
 }
 
 .settings-card-profile {

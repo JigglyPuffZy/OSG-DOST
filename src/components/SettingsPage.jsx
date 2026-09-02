@@ -5,7 +5,6 @@ import {
   Globe,
   Layout,
   Monitor,
-  Sparkles,
   User,
 } from "lucide-react"
 import Button from "./ui/Button"
@@ -34,14 +33,11 @@ function SettingsSwitch({ checked, onChange, label, hint }) {
   )
 }
 
-function SettingsCard({ icon: Icon, title, description, tone = "dost", children, className = "" }) {
+function SettingsCard({ icon: Icon, title, description, children, className = "" }) {
   return (
-    <section className={`settings-card settings-card-${tone} ${className}`}>
-      <div className="settings-card-shine" aria-hidden="true" />
+    <section className={`settings-card ${className}`}>
       <header className="settings-card-header">
-        <span className={`settings-card-icon settings-card-icon-${tone}`}>
-          <Icon className="h-4 w-4" strokeWidth={2} />
-        </span>
+        <Icon className="settings-card-icon-simple h-4 w-4" strokeWidth={2} />
         <div className="min-w-0">
           <h2 className="settings-card-title">{title}</h2>
           {description ? (
@@ -80,7 +76,6 @@ export default function SettingsPage({
         <div className="settings-hero-inner">
           <div className="settings-hero-copy">
             <span className="settings-hero-badge">
-              <Sparkles className="h-3.5 w-3.5 text-dost-500" />
               {t("page.settings")}
             </span>
             <p className="settings-hero-sub">
@@ -100,7 +95,6 @@ export default function SettingsPage({
         icon={User}
         title={t("settings.profile")}
         description={t("settings.profileDesc")}
-        tone="dost"
         className="settings-card-profile"
       >
         <div className="settings-profile-banner">
@@ -138,7 +132,6 @@ export default function SettingsPage({
           icon={Layout}
           title={t("settings.workspace")}
           description={t("settings.workspaceDesc")}
-          tone="sky"
         >
           <label className="field-label">
             {t("settings.startOn")}
@@ -157,7 +150,6 @@ export default function SettingsPage({
           icon={Globe}
           title={t("settings.language")}
           description={t("settings.languageDesc")}
-          tone="violet"
         >
           <div className="settings-lang-row">
             <div>
@@ -174,7 +166,6 @@ export default function SettingsPage({
           icon={Monitor}
           title={t("settings.display")}
           description={t("settings.displayDesc")}
-          tone="amber"
         >
           <SettingsSwitch
             checked={settings.compactTable}
@@ -188,7 +179,6 @@ export default function SettingsPage({
           icon={Database}
           title={t("settings.data")}
           description={t("settings.dataDesc")}
-          tone="emerald"
         >
           <div className="settings-data-stack">
             {!remoteData ? (

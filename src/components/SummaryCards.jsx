@@ -81,7 +81,6 @@ function StatCard({ card, label, value, total, active, delay, onSelect, t }) {
       } ${active ? "summary-glass-active" : ""}`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <span className="summary-glass-shine" aria-hidden="true" />
       <div className="summary-glass-body">
         <div className="summary-glass-top">
           <span className="summary-glass-icon">
