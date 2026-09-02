@@ -28,7 +28,7 @@ function Toggle({ checked, onChange, label, hint }) {
 
 function SettingsCard({ icon: Icon, title, description, children }) {
   return (
-    <section className="surface-card overflow-hidden">
+    <section className="surface-card">
       <div className="flex items-start gap-3 border-b border-navy-100 px-5 py-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
           <Icon className="h-4 w-4" />
