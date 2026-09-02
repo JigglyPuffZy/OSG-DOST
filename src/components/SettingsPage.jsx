@@ -1,46 +1,55 @@
 import {
+  Check,
   Database,
   Download,
+  Globe,
   Layout,
   Monitor,
+  Sparkles,
   User,
 } from "lucide-react"
 import Button from "./ui/Button"
 import UserAvatar from "./ui/UserAvatar"
+import LanguageToggle from "./ui/LanguageToggle"
 import { initialsFromName, PROFILE_AVATAR_URL } from "../utils/settings"
+import { useLanguage } from "../i18n/LanguageContext"
 
-function Toggle({ checked, onChange, label, hint }) {
+function SettingsSwitch({ checked, onChange, label, hint }) {
   return (
-    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-navy-100 bg-white px-4 py-3 transition-colors hover:border-navy-200">
-      <span>
-        <span className="block text-sm font-medium text-navy-900">{label}</span>
-        <span className="mt-0.5 block text-xs text-navy-500">{hint}</span>
+    <label className="settings-toggle-row">
+      <span className="settings-toggle-copy">
+        <span className="settings-toggle-label">{label}</span>
+        {hint ? <span className="settings-toggle-hint">{hint}</span> : null}
       </span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-        className="mt-1 h-4 w-4 rounded accent-navy-900"
-      />
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`settings-switch ${checked ? "settings-switch-on" : ""}`}
+      >
+        <span className="settings-switch-thumb" />
+      </button>
     </label>
   )
 }
 
-function SettingsCard({ icon: Icon, title, description, children }) {
+function SettingsCard({ icon: Icon, title, description, tone = "dost", children, className = "" }) {
   return (
-    <section className="surface-card">
-      <div className="flex items-start gap-3 border-b border-navy-100 px-5 py-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
-          <Icon className="h-4 w-4" />
+    <section className={`settings-card settings-card-${tone} ${className}`}>
+      <div className="settings-card-shine" aria-hidden="true" />
+      <header className="settings-card-header">
+        <span className={`settings-card-icon settings-card-icon-${tone}`}>
+          <Icon className="h-4 w-4" strokeWidth={2} />
+        </span>
+        <div className="min-w-0">
+          <h2 className="settings-card-title">{title}</h2>
+          {description ? (
+            <p className="settings-card-desc">{description}</p>
+          ) : null}
         </div>
-        <div>
-          <h2 className="text-sm font-semibold text-navy-900">{title}</h2>
-          {description && (
-            <p className="mt-0.5 text-xs text-navy-500">{description}</p>
-          )}
-        </div>
-      </div>
-      <div className="p-5">{children}</div>
+      </header>
+      <div className="settings-card-body">{children}</div>
     </section>
   )
 }
@@ -52,6 +61,7 @@ export default function SettingsPage({
   saved,
   remoteData = false,
 }) {
+  const { t } = useLanguage()
   const update = (field, value) => onChange({ ...settings, [field]: value })
   const profileUser = {
     displayName: settings.displayName,
@@ -60,110 +70,140 @@ export default function SettingsPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5 animate-fade-in">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-navy-500">
-          {remoteData
-            ? "Settings sync to your Supabase profile."
-            : "Changes save automatically in this browser."}
-        </p>
-        {saved ? (
-          <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100">
-            Saved
-          </span>
-        ) : null}
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-2">
-        <SettingsCard
-          icon={User}
-          title="Profile"
-          description="Shown in the sidebar"
-        >
-          <div className="mb-4 flex items-center gap-4 rounded-xl border border-navy-100 bg-navy-50/50 p-4">
-            <UserAvatar user={profileUser} className="h-16 w-16" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-navy-900">
-                {settings.displayName}
-              </p>
-              <p className="truncate text-xs text-navy-500">{settings.role}</p>
-              <p className="truncate text-[11px] text-navy-400">
-                {settings.organization}
-              </p>
-            </div>
+    <div className="settings-page animate-fade-in">
+      <section className="settings-hero">
+        <div className="settings-hero-aurora" aria-hidden="true">
+          <span className="summary-aurora summary-aurora-a" />
+          <span className="summary-aurora summary-aurora-b" />
+          <span className="summary-aurora summary-aurora-c" />
+        </div>
+        <div className="settings-hero-inner">
+          <div className="settings-hero-copy">
+            <span className="settings-hero-badge">
+              <Sparkles className="h-3.5 w-3.5 text-dost-500" />
+              {t("page.settings")}
+            </span>
+            <p className="settings-hero-sub">
+              {remoteData ? t("settings.autoSaveRemote") : t("settings.autoSaveLocal")}
+            </p>
           </div>
-          <div className="space-y-3">
-            <label className="field-label">
-              Display name
-              <input
-                value={settings.displayName}
-                onChange={(event) => update("displayName", event.target.value)}
-                className="field-input"
-              />
-            </label>
-            <label className="field-label">
-              Role
-              <input
-                value={settings.role}
-                onChange={(event) => update("role", event.target.value)}
-                className="field-input"
-              />
-            </label>
-          </div>
-        </SettingsCard>
+          {saved ? (
+            <span className="settings-saved-pill">
+              <Check className="h-3.5 w-3.5" />
+              {t("app.saved")}
+            </span>
+          ) : null}
+        </div>
+      </section>
 
+      <SettingsCard
+        icon={User}
+        title={t("settings.profile")}
+        description={t("settings.profileDesc")}
+        tone="dost"
+        className="settings-card-profile"
+      >
+        <div className="settings-profile-banner">
+          <div className="settings-avatar-ring">
+            <UserAvatar user={profileUser} className="h-20 w-20" />
+          </div>
+          <div className="settings-profile-meta">
+            <p className="settings-profile-name">{settings.displayName}</p>
+            <p className="settings-profile-role">{settings.role}</p>
+            <p className="settings-profile-org">{settings.organization}</p>
+          </div>
+        </div>
+        <div className="settings-field-grid">
+          <label className="field-label">
+            {t("settings.displayName")}
+            <input
+              value={settings.displayName}
+              onChange={(event) => update("displayName", event.target.value)}
+              className="field-input"
+            />
+          </label>
+          <label className="field-label">
+            {t("settings.role")}
+            <input
+              value={settings.role}
+              onChange={(event) => update("role", event.target.value)}
+              className="field-input"
+            />
+          </label>
+        </div>
+      </SettingsCard>
+
+      <div className="settings-grid">
         <SettingsCard
           icon={Layout}
-          title="Workspace"
-          description="Which page opens when you sign in"
+          title={t("settings.workspace")}
+          description={t("settings.workspaceDesc")}
+          tone="sky"
         >
           <label className="field-label">
-            Start on
+            {t("settings.startOn")}
             <select
               value={settings.startPage}
               onChange={(event) => update("startPage", event.target.value)}
               className="field-input"
             >
-              <option value="dashboard">Home (overview)</option>
-              <option value="cases">All Cases</option>
+              <option value="dashboard">{t("settings.startHome")}</option>
+              <option value="cases">{t("settings.startCases")}</option>
             </select>
           </label>
         </SettingsCard>
 
         <SettingsCard
-          icon={Monitor}
-          title="Display"
-          description="How the docket appears"
+          icon={Globe}
+          title={t("settings.language")}
+          description={t("settings.languageDesc")}
+          tone="violet"
         >
-          <Toggle
+          <div className="settings-lang-row">
+            <div>
+              <p className="settings-lang-label">
+                {t("settings.english")} / {t("settings.tagalog")}
+              </p>
+              <p className="settings-lang-hint">{t("settings.languageDesc")}</p>
+            </div>
+            <LanguageToggle />
+          </div>
+        </SettingsCard>
+
+        <SettingsCard
+          icon={Monitor}
+          title={t("settings.display")}
+          description={t("settings.displayDesc")}
+          tone="amber"
+        >
+          <SettingsSwitch
             checked={settings.compactTable}
             onChange={(value) => update("compactTable", value)}
-            label="Compact list"
-            hint="Shorter rows and fewer remarks on case cards"
+            label={t("settings.compactList")}
+            hint={t("settings.compactListHint")}
           />
         </SettingsCard>
 
         <SettingsCard
           icon={Database}
-          title="Data"
-          description="Download an Excel copy of the docket"
+          title={t("settings.data")}
+          description={t("settings.dataDesc")}
+          tone="emerald"
         >
-          <div className="space-y-3">
+          <div className="settings-data-stack">
             {!remoteData ? (
-              <Toggle
+              <SettingsSwitch
                 checked={settings.keepLocalData}
                 onChange={(value) => update("keepLocalData", value)}
-                label="Keep cases in this browser"
-                hint="Persist changes after refresh"
+                label={t("settings.keepLocal")}
+                hint={t("settings.keepLocalHint")}
               />
             ) : (
-              <p className="text-sm text-navy-600">
-                Cases are stored in Supabase. Download an Excel backup below.
-              </p>
+              <p className="settings-data-note">{t("settings.supabaseBackup")}</p>
             )}
-            <Button size="sm" onClick={onExport}>
+            <Button variant="primary" size="md" onClick={onExport} className="settings-export-btn">
               <Download className="h-4 w-4" />
-              Export to Excel
+              {t("settings.exportExcel")}
             </Button>
           </div>
         </SettingsCard>

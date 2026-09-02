@@ -3,8 +3,11 @@ import { ArrowRight, Lock, Mail } from "lucide-react"
 import { supabase, isSupabaseConfigured } from "../lib/supabase"
 import { DEFAULT_LOGIN_EMAIL, tryLocalLogin } from "../utils/auth"
 import DostLogo from "./ui/DostLogo"
+import LanguageToggle from "./ui/LanguageToggle"
+import { useLanguage } from "../i18n/LanguageContext"
 
 export default function LoginPage({ onLocalLogin }) {
+  const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -16,7 +19,7 @@ export default function LoginPage({ onLocalLogin }) {
 
     const trimmedEmail = email.trim()
     if (!trimmedEmail || !password) {
-      setError("Enter your email and password.")
+      setError(t("auth.enterCredentials"))
       return
     }
 
@@ -35,7 +38,7 @@ export default function LoginPage({ onLocalLogin }) {
     const user = tryLocalLogin(trimmedEmail, password)
     setLoading(false)
     if (user) onLocalLogin?.(user)
-    else setError("Invalid email or password.")
+    else setError(t("auth.invalidCredentials"))
   }
 
   return (
@@ -46,25 +49,21 @@ export default function LoginPage({ onLocalLogin }) {
             <DostLogo className="h-12 w-12" />
           </div>
           <h1 className="mt-4 font-heading text-2xl font-bold tracking-tight text-slate-900">
-            OSG DOST Task Force
+            {t("app.title")}
           </h1>
-          <p className="mt-1 text-sm text-dost-600">
-            Case Monitoring &amp; Management System
-          </p>
+          <p className="mt-1 text-sm text-dost-600">{t("app.subtitle")}</p>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xl shadow-slate-200/50">
           <div className="border-b border-slate-100 px-6 py-5">
-            <h2 className="text-lg font-bold text-slate-900">Sign in</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Authorized personnel only
-            </p>
+            <h2 className="text-lg font-bold text-slate-900">{t("auth.signIn")}</h2>
+            <p className="mt-1 text-sm text-slate-500">{t("auth.authorizedOnly")}</p>
           </div>
 
           <form className="space-y-5 p-6" onSubmit={handleSubmit} noValidate>
             <div className="login-input-group">
               <label htmlFor="login-email" className="field-label">
-                Email address
+                {t("auth.email")}
               </label>
               <div className="relative mt-1.5">
                 <Mail
@@ -85,7 +84,7 @@ export default function LoginPage({ onLocalLogin }) {
 
             <div className="login-input-group">
               <label htmlFor="login-password" className="field-label">
-                Password
+                {t("auth.password")}
               </label>
               <div className="relative mt-1.5">
                 <Lock
@@ -99,7 +98,7 @@ export default function LoginPage({ onLocalLogin }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="login-input"
-                  placeholder="Enter your password"
+                  placeholder={t("auth.passwordPlaceholder")}
                 />
               </div>
             </div>
@@ -118,11 +117,11 @@ export default function LoginPage({ onLocalLogin }) {
               {loading ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Signing in…
+                  {t("auth.signingIn")}
                 </>
               ) : (
                 <>
-                  Sign in
+                  {t("auth.signInButton")}
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
@@ -130,9 +129,10 @@ export default function LoginPage({ onLocalLogin }) {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Department of Science and Technology · Republic of the Philippines
-        </p>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <LanguageToggle />
+          <p className="text-center text-xs text-slate-400">{t("app.republic")}</p>
+        </div>
       </div>
     </div>
   )

@@ -185,19 +185,25 @@ export const emptyFilters = {
   caseNumber: "all",
 }
 
-export function getActiveFilterChips(filters) {
+export function getActiveFilterChips(filters, t) {
   const chips = []
   if (filters.search.trim()) {
-    chips.push({ key: "search", label: `Search: ${filters.search.trim()}` })
+    chips.push({
+      key: "search",
+      label: `${t("filters.chipSearch")}: ${filters.search.trim()}`,
+    })
   }
   if (filters.status !== "all") {
-    chips.push({ key: "status", label: `Status: ${filters.status}` })
+    chips.push({
+      key: "status",
+      label: `${t("filters.chipStatus")}: ${t(`status.${filters.status}`)}`,
+    })
   }
   if (filters.caseNumber === "with") {
-    chips.push({ key: "caseNumber", label: "Has docket" })
+    chips.push({ key: "caseNumber", label: t("filters.chipHasDocket") })
   }
   if (filters.caseNumber === "without") {
-    chips.push({ key: "caseNumber", label: "No docket" })
+    chips.push({ key: "caseNumber", label: t("filters.chipNoDocket") })
   }
   return chips
 }

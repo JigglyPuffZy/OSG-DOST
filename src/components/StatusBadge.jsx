@@ -1,3 +1,5 @@
+import { useLanguage } from "../i18n/LanguageContext"
+
 const styles = {
   Pending: "bg-amber-50 text-amber-900 ring-amber-200/80",
   Ongoing: "bg-sky-50 text-sky-900 ring-sky-200/80",
@@ -13,6 +15,9 @@ const dots = {
 }
 
 export default function StatusBadge({ status }) {
+  const { t } = useLanguage()
+  const label = t(`status.${status}`) || status
+
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ring-1 ${styles[status] || styles.Archived}`}
@@ -21,7 +26,7 @@ export default function StatusBadge({ status }) {
         className={`h-1.5 w-1.5 rounded-full ${dots[status] || dots.Archived}`}
         aria-hidden="true"
       />
-      {status}
+      {label}
     </span>
   )
 }

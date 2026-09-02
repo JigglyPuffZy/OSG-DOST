@@ -1,13 +1,16 @@
 import { Archive, Briefcase, LayoutDashboard, Settings } from "lucide-react"
+import { useLanguage } from "../../i18n/LanguageContext"
 
 const items = [
-  { id: "dashboard", label: "Home", icon: LayoutDashboard },
-  { id: "cases", label: "Cases", icon: Briefcase },
-  { id: "archived", label: "Archived", icon: Archive },
-  { id: "settings", label: "Settings", icon: Settings },
+  { id: "dashboard", labelKey: "nav.home", icon: LayoutDashboard },
+  { id: "cases", labelKey: "nav.cases", icon: Briefcase },
+  { id: "archived", labelKey: "nav.archived", icon: Archive },
+  { id: "settings", labelKey: "nav.settings", icon: Settings },
 ]
 
 export default function MobileNav({ page, onNavigate }) {
+  const { t } = useLanguage()
+
   return (
     <nav
       className="fixed inset-x-2 bottom-3 z-40 rounded-2xl border border-slate-200 bg-white px-0.5 py-1 shadow-lg shadow-slate-200/60 lg:hidden"
@@ -27,7 +30,7 @@ export default function MobileNav({ page, onNavigate }) {
                 }`}
               >
                 <Icon className={`h-[18px] w-[18px] ${active ? "text-dost-500" : ""}`} />
-                {item.label}
+                {t(item.labelKey)}
               </button>
             </li>
           )

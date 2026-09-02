@@ -1,21 +1,23 @@
 import { FileSearch, Plus } from "lucide-react"
 import Button from "./ui/Button"
+import { useLanguage } from "../i18n/LanguageContext"
 
 export default function EmptyState({ onClear, onAdd, variant = "filtered" }) {
+  const { t } = useLanguage()
   const isEmpty = variant === "empty"
   const isArchived = variant === "archived"
 
   const heading = isEmpty
-    ? "No cases yet"
+    ? t("empty.none")
     : isArchived
-      ? "No archived cases"
-      : "No matching cases"
+      ? t("empty.archived")
+      : t("empty.filtered")
 
   const description = isEmpty
-    ? "Start by adding your first case. You only need a title — add a docket number later if needed."
+    ? t("empty.noneDesc")
     : isArchived
-      ? "Archived cases will appear here when you archive them from All Cases."
-      : "Nothing matched your search or filters. Try different keywords or clear filters to see all cases."
+      ? t("empty.archivedDesc")
+      : t("empty.filteredDesc")
 
   return (
     <div className="surface-card px-6 py-16 text-center">
@@ -30,11 +32,11 @@ export default function EmptyState({ onClear, onAdd, variant = "filtered" }) {
         {isEmpty && onAdd ? (
           <Button variant="primary" size="sm" onClick={onAdd}>
             <Plus className="h-4 w-4" />
-            Add your first case
+            {t("empty.addFirst")}
           </Button>
         ) : !isArchived ? (
           <Button size="sm" onClick={onClear}>
-            Clear filters
+            {t("empty.clearFilters")}
           </Button>
         ) : null}
       </div>

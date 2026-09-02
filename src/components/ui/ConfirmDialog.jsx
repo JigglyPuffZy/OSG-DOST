@@ -1,14 +1,17 @@
 import Button from "./Button"
+import { useLanguage } from "../../i18n/LanguageContext"
 
 export default function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = "Delete",
+  confirmLabel,
   confirmVariant = "danger",
   onConfirm,
   onCancel,
 }) {
+  const { t } = useLanguage()
+
   if (!open) return null
 
   return (
@@ -24,9 +27,9 @@ export default function ConfirmDialog({
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-navy-600">{message}</p>
         <div className="mt-6 flex justify-end gap-2">
-          <Button size="sm" onClick={onCancel}>Cancel</Button>
+          <Button size="sm" onClick={onCancel}>{t("confirm.cancel")}</Button>
           <Button size="sm" variant={confirmVariant} onClick={onConfirm}>
-            {confirmLabel}
+            {confirmLabel || t("confirm.delete")}
           </Button>
         </div>
       </div>

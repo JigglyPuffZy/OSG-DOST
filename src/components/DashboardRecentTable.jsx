@@ -5,6 +5,7 @@ import {
   getStatusUpdates,
   hasCaseNumber,
 } from "../utils/caseHelpers"
+import { useLanguage } from "../i18n/LanguageContext"
 
 const statusStripe = {
   Pending: "bg-amber-400",
@@ -36,12 +37,14 @@ function truncate(text, max = 90) {
 }
 
 export default function DashboardRecentTable({ cases, onView, onViewAll }) {
+  const { t } = useLanguage()
+
   return (
     <section className="table-pro surface-card hidden overflow-hidden md:block">
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div>
-          <h2 className="text-sm font-bold text-slate-900">Recent cases</h2>
-          <p className="mt-0.5 text-xs text-slate-500">Click a row to open the full case file</p>
+          <h2 className="text-sm font-bold text-slate-900">{t("dashboard.recentCases")}</h2>
+          <p className="mt-0.5 text-xs text-slate-500">{t("dashboard.clickRow")}</p>
         </div>
         {onViewAll ? (
           <button
@@ -49,7 +52,7 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
             onClick={onViewAll}
             className="inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-dost-600 transition-colors hover:bg-dost-50 hover:text-dost-700"
           >
-            View all
+            {t("dashboard.viewAll")}
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
         ) : null}
@@ -118,7 +121,7 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
                       ) : (
                         <span className="inline-flex items-center gap-1 font-medium text-amber-700">
                           <TriangleAlert className="h-3 w-3" />
-                          No docket
+                          {t("cases.noDocketShort")}
                         </span>
                       )}
                     </p>
@@ -137,7 +140,7 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
                         {truncate(latestRemark)}
                       </p>
                     ) : (
-                      <p className="text-sm text-slate-400">No updates yet</p>
+                      <p className="text-sm text-slate-400">{t("cases.noUpdates")}</p>
                     )}
                     <p className="mt-1.5 text-xs text-slate-400">
                       {formatDateShort(item.lastUpdated)}

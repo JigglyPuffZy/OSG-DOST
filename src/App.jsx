@@ -39,6 +39,7 @@ import {
   tryLocalLogin,
 } from "./utils/auth"
 import DostLogo from "./components/ui/DostLogo"
+import { useLanguage } from "./i18n/LanguageContext"
 
 function LoadingScreen({ message = "Loading…" }) {
   return (
@@ -57,6 +58,7 @@ function LoadingScreen({ message = "Loading…" }) {
 }
 
 function AppShell({ authUser, useRemote, onLogout }) {
+  const { t } = useLanguage()
   const [settings, setSettings] = useState(() =>
     useRemote ? { ...defaultSettings } : loadSettings(),
   )
@@ -320,7 +322,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const showDocketPage = showCasesPage || showArchivedPage
 
   if (dataLoading) {
-    return <LoadingScreen message="Loading cases…" />
+    return <LoadingScreen message={t("app.loadingCases")} />
   }
 
   if (dataError) {
@@ -333,7 +335,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
             className="btn-primary-glow mt-5 rounded-xl px-5 py-2.5 text-sm font-semibold text-white"
             onClick={() => window.location.reload()}
           >
-            Try again
+            {t("app.tryAgain")}
           </button>
         </div>
       </div>
@@ -365,7 +367,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
                 onClick={() => setActionError("")}
                 className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-semibold text-red-700 hover:bg-red-100"
               >
-                Dismiss
+                {t("app.dismiss")}
               </button>
             </div>
           ) : null}
@@ -382,7 +384,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
                 className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:border-dost-200 hover:text-dost-700 sm:w-auto lg:hidden"
               >
                 <SlidersHorizontal className="h-4 w-4 text-dost-500" />
-                Filters
+                {t("page.filters")}
               </button>
             )}
           </PageHeader>
@@ -411,7 +413,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
                 mobileOpen={mobileFilters}
                 onCloseMobile={() => setMobileFilters(false)}
                 hideStatus={showArchivedPage}
-                title={showArchivedPage ? "Archived filters" : "Filters"}
+                title={showArchivedPage ? t("filters.archivedTitle") : undefined}
               />
               {visibleCases.length === 0 ? (
                 <EmptyState
@@ -479,10 +481,10 @@ function AppShell({ authUser, useRemote, onLogout }) {
 
       <ConfirmDialog
         open={Boolean(pendingDelete)}
-        title="Delete this case?"
+        title={t("confirm.deleteTitle")}
         message={
           pendingDelete
-            ? `“${pendingDelete.caseTitle}” will be removed. The list will renumber automatically (e.g. 22 cases becomes 21). This cannot be undone.`
+            ? t("confirm.deleteMessage", { title: pendingDelete.caseTitle })
             : ""
         }
         onCancel={() => setPendingDelete(null)}
@@ -490,22 +492,22 @@ function AppShell({ authUser, useRemote, onLogout }) {
       />
       <ConfirmDialog
         open={Boolean(pendingArchive)}
-        title="Archive this case?"
+        title={t("confirm.archiveTitle")}
         message={
           pendingArchive
-            ? `“${pendingArchive.caseTitle}” will be moved to Archived. You can find it in the Archived tab.`
+            ? t("confirm.archiveMessage", { title: pendingArchive.caseTitle })
             : ""
         }
-        confirmLabel="Archive"
+        confirmLabel={t("confirm.archive")}
         confirmVariant="primary"
         onCancel={() => setPendingArchive(null)}
         onConfirm={confirmArchive}
       />
       <ConfirmDialog
         open={pendingLogout}
-        title="Sign out?"
-        message="You will need to sign in again to access the case system."
-        confirmLabel="Sign out"
+        title={t("confirm.logoutTitle")}
+        message={t("confirm.logoutMessage")}
+        confirmLabel={t("confirm.logoutButton")}
         confirmVariant="primary"
         onCancel={() => setPendingLogout(false)}
         onConfirm={handleLogout}
@@ -515,6 +517,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
 }
 
 export default function App() {
+  const { t } = useLanguage()
   const [authUser, setAuthUser] = useState(null)
   const [localSession, setLocalSession] = useState(() => loadLocalSession())
   const [authLoading, setAuthLoading] = useState(isSupabaseConfigured)
@@ -554,7 +557,7 @@ export default function App() {
   }
 
   if (authLoading) {
-    return <LoadingScreen message="Checking session…" />
+    return <LoadingScreen message={t("app.checkingSession")} />
   }
 
   if (!isAuthenticated) {

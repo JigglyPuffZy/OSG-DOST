@@ -12,6 +12,7 @@ import {
   getStatusUpdates,
   hasCaseNumber,
 } from "../utils/caseHelpers"
+import { useLanguage } from "../i18n/LanguageContext"
 
 const stripe = {
   Pending: "bg-amber-400",
@@ -33,12 +34,14 @@ export default function CaseTable({
   onArchive,
   compact = false,
 }) {
+  const { t } = useLanguage()
+
   return (
     <section className="hidden md:block">
       <div className="mb-3 px-1">
         <p className="text-sm text-slate-600">
-          <span className="font-bold text-slate-900">{cases.length}</span> case
-          {cases.length !== 1 ? "s" : ""}
+          <span className="font-bold text-slate-900">{cases.length}</span>{" "}
+          {cases.length === 1 ? t("cases.count") : t("cases.countPlural")}
         </p>
       </div>
 
@@ -90,7 +93,7 @@ export default function CaseTable({
                         ) : (
                           <span className="case-chip case-chip-warn">
                             <TriangleAlert className="h-3 w-3" />
-                            No docket
+                            {t("cases.noDocket")}
                           </span>
                         )}
                         <span className="case-chip">
@@ -105,13 +108,13 @@ export default function CaseTable({
                           {updates.length > 1 ? (
                             <span className="text-slate-400">
                               {" "}
-                              · +{updates.length - 1} more
+                              · +{updates.length - 1} {t("cases.moreUpdates")}
                             </span>
                           ) : null}
                         </p>
                       ) : (
                         <p className="mt-3 text-left text-sm text-slate-400">
-                          No updates yet
+                          {t("cases.noUpdates")}
                         </p>
                       )}
                     </div>
@@ -129,7 +132,7 @@ export default function CaseTable({
                     onClick={() => onView(item)}
                     className="case-action-btn case-action-btn-primary"
                   >
-                    Open file
+                    {t("cases.openFile")}
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
                   <button
@@ -138,7 +141,7 @@ export default function CaseTable({
                     className="case-action-btn"
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    Edit
+                    {t("cases.edit")}
                   </button>
                   {!isArchived && onArchive ? (
                     <button
@@ -147,7 +150,7 @@ export default function CaseTable({
                       className="case-action-btn"
                     >
                       <Archive className="h-3.5 w-3.5" />
-                      Archive
+                      {t("cases.archive")}
                     </button>
                   ) : null}
                   <button
@@ -156,7 +159,7 @@ export default function CaseTable({
                     className="case-action-btn case-action-btn-danger"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    Delete
+                    {t("cases.delete")}
                   </button>
                 </div>
               </article>

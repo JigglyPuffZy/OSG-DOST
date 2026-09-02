@@ -7,12 +7,7 @@ import {
 import { STATUS_OPTIONS } from "../data/cases"
 import Button from "./ui/Button"
 import { getActiveFilterChips } from "../utils/caseHelpers"
-
-const numberOptions = [
-  { value: "all", label: "All" },
-  { value: "with", label: "Has docket" },
-  { value: "without", label: "No docket" },
-]
+import { useLanguage } from "../i18n/LanguageContext"
 
 function PillGroup({ options, value, onChange, nowrap = false }) {
   return (
@@ -34,7 +29,7 @@ function PillGroup({ options, value, onChange, nowrap = false }) {
   )
 }
 
-function ActiveFilterBar({ chips, onRemoveChip, onClear }) {
+function ActiveFilterBar({ chips, onRemoveChip, onClear, clearLabel }) {
   if (chips.length === 0) return null
 
   return (
@@ -53,13 +48,13 @@ function ActiveFilterBar({ chips, onRemoveChip, onClear }) {
         ))}
       </div>
       <button type="button" onClick={onClear} className="filter-clear-btn">
-        Clear all
+        {clearLabel}
       </button>
     </div>
   )
 }
 
-function MobileFilterSheet({ open, onClose, children }) {
+function MobileFilterSheet({ open, onClose, children, title }) {
   if (!open) return null
 
   return (
@@ -74,7 +69,7 @@ function MobileFilterSheet({ open, onClose, children }) {
         <div className="mx-auto mb-2 mt-3 h-1 w-10 rounded-full bg-slate-200" />
         <div className="px-5 pb-6">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="font-bold text-slate-900">Filters</h2>
+            <h2 className="font-bold text-slate-900">{title}</h2>
             <button
               type="button"
               onClick={onClose}
@@ -102,9 +97,17 @@ export default function CaseFilters({
   onCloseMobile,
   layout = "bar",
   hideStatus = false,
-  title = "Filters",
+  title,
 }) {
-  const chips = getActiveFilterChips(filters)
+  const { t } = useLanguage()
+  const panelTitle = title || t("filters.title")
+  const chips = getActiveFilterChips(filters, t)
+
+  const numberOptions = [
+    { value: "all", label: t("filters.all") },
+    { value: "with", label: t("filters.hasDocket") },
+    { value: "without", label: t("filters.noDocket") },
+  ]
   const isSidebar = layout === "sidebar"
   const isPageLayout = layout === "page"
   const hasActiveFilters = chips.length > 0
@@ -118,8 +121,11 @@ export default function CaseFilters({
   }
 
   const statusOptions = [
-    { value: "all", label: "All" },
-    ...STATUS_OPTIONS.filter((s) => s !== "Archived").map((s) => ({ value: s, label: s })),
+    { value: "all", label: t("filters.all") },
+    ...STATUS_OPTIONS.filter((s) => s !== "Archived").map((s) => ({
+      value: s,
+      label: t(`status.${s}`),
+    })),
   ]
 
   const panelHeader = (
@@ -130,14 +136,14 @@ export default function CaseFilters({
         </span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <h2 className="text-sm font-bold text-slate-900">{title}</h2>
+            <h2 className="text-sm font-bold text-slate-900">{panelTitle}</h2>
             <span className="text-xs font-medium text-slate-400">
               <span className="font-bold tabular-nums text-dost-600">{resultCount}</span>
               {" of "}
               <span className="tabular-nums">{totalCount}</span>
             </span>
           </div>
-          <p className="text-xs text-slate-500">Narrow the docket</p>
+          <p className="text-xs text-slate-500">{t("filters.narrow")}</p>
         </div>
       </div>
     </div>
@@ -150,7 +156,7 @@ export default function CaseFilters({
         type="search"
         value={filters.search}
         onChange={(event) => onChange({ ...filters, search: event.target.value })}
-        placeholder="Title or docket number…"
+        placeholder={t("filters.searchPlaceholder")}
         className="filter-search-input"
       />
     </div>
@@ -158,7 +164,7 @@ export default function CaseFilters({
 
   const statusField = !hideStatus ? (
     <div className="filter-group">
-      <p className="filter-group-label">Status</p>
+      <p className="filter-group-label">{t("filters.status")}</p>
       <PillGroup
         options={statusOptions}
         value={filters.status}
@@ -172,7 +178,7 @@ export default function CaseFilters({
     <div className="filter-group">
       <p className="filter-group-label">
         <Hash className="h-3 w-3 text-dost-500" strokeWidth={2} />
-        Docket
+        {t("filters.docket")}
       </p>
       <PillGroup
         options={numberOptions}
@@ -195,11 +201,11 @@ export default function CaseFilters({
             onCloseMobile?.()
           }}
         >
-          Apply
+          {t("filters.apply")}
         </Button>
         {hasActiveFilters ? (
           <Button size="sm" onClick={onClear}>
-            Clear all
+            {t("filters.clearAll")}
           </Button>
         ) : null}
       </div>
@@ -210,7 +216,7 @@ export default function CaseFilters({
       <div className="filter-search-row">
         <p className="filter-group-label">
           <Search className="h-3 w-3 text-dost-500" strokeWidth={2} />
-          Search
+          {t("filters.search")}
         </p>
         {searchField}
       </div>
@@ -220,7 +226,12 @@ export default function CaseFilters({
         {docketField}
       </div>
 
-      <ActiveFilterBar chips={chips} onRemoveChip={removeChip} onClear={onClear} />
+      <ActiveFilterBar
+        chips={chips}
+        onRemoveChip={removeChip}
+        onClear={onClear}
+        clearLabel={t("filters.clearAll")}
+      />
       {renderMobileActions(showApply)}
     </div>
   )
@@ -230,14 +241,14 @@ export default function CaseFilters({
       <div className="filter-section">
         <p className="filter-section-title">
           <Search className="h-3.5 w-3.5 text-dost-500" strokeWidth={2} />
-          Search
+          {t("filters.search")}
         </p>
         {searchField}
       </div>
 
       {!hideStatus ? (
         <div className="filter-section">
-          <p className="filter-section-title">Status</p>
+          <p className="filter-section-title">{t("filters.status")}</p>
           <PillGroup
             options={statusOptions}
             value={filters.status}
@@ -249,7 +260,7 @@ export default function CaseFilters({
       <div className="filter-section">
         <p className="filter-section-title">
           <Hash className="h-3.5 w-3.5 text-dost-500" strokeWidth={2} />
-          Docket
+          {t("filters.docket")}
         </p>
         <PillGroup
           options={numberOptions}
@@ -258,7 +269,12 @@ export default function CaseFilters({
         />
       </div>
 
-      <ActiveFilterBar chips={chips} onRemoveChip={removeChip} onClear={onClear} />
+      <ActiveFilterBar
+        chips={chips}
+        onRemoveChip={removeChip}
+        onClear={onClear}
+        clearLabel={t("filters.clearAll")}
+      />
 
       {renderMobileActions(showApply)}
     </div>
@@ -272,7 +288,7 @@ export default function CaseFilters({
           {renderStackedForm()}
         </aside>
 
-        <MobileFilterSheet open={mobileOpen} onClose={onCloseMobile}>
+        <MobileFilterSheet open={mobileOpen} onClose={onCloseMobile} title={panelTitle}>
           {renderStackedForm()}
         </MobileFilterSheet>
       </>
@@ -287,7 +303,7 @@ export default function CaseFilters({
           {renderCompactForm()}
         </div>
 
-        <MobileFilterSheet open={mobileOpen} onClose={onCloseMobile}>
+        <MobileFilterSheet open={mobileOpen} onClose={onCloseMobile} title={panelTitle}>
           {renderStackedForm({ showApply: true })}
         </MobileFilterSheet>
       </>

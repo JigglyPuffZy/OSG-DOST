@@ -6,39 +6,14 @@ import {
   Hash,
   PauseCircle,
 } from "lucide-react"
+import { useLanguage } from "../i18n/LanguageContext"
 
 const cards = [
-  {
-    key: "total",
-    label: "Total cases",
-    icon: Briefcase,
-    tone: "dost",
-    featured: true,
-  },
-  {
-    key: "pending",
-    label: "Pending",
-    icon: PauseCircle,
-    tone: "amber",
-  },
-  {
-    key: "ongoing",
-    label: "Ongoing",
-    icon: CircleDot,
-    tone: "sky",
-  },
-  {
-    key: "closed",
-    label: "Closed",
-    icon: FolderOpen,
-    tone: "emerald",
-  },
-  {
-    key: "withoutNumber",
-    label: "No docket",
-    icon: Hash,
-    tone: "rose",
-  },
+  { key: "total", labelKey: "stats.total", icon: Briefcase, tone: "dost", featured: true },
+  { key: "pending", labelKey: "stats.pending", icon: PauseCircle, tone: "amber" },
+  { key: "ongoing", labelKey: "stats.ongoing", icon: CircleDot, tone: "sky" },
+  { key: "closed", labelKey: "stats.closed", icon: FolderOpen, tone: "emerald" },
+  { key: "withoutNumber", labelKey: "stats.noDocket", icon: Hash, tone: "rose" },
 ]
 
 function useCountUp(target, duration = 900) {
@@ -92,7 +67,7 @@ function ProgressRing({ percent, tone, children }) {
   )
 }
 
-function StatCard({ card, value, total, active, delay, onSelect }) {
+function StatCard({ card, label, value, total, active, delay, onSelect, t }) {
   const Icon = card.icon
   const animated = useCountUp(value)
   const percent = card.key === "total" ? 100 : Math.round((value / total) * 100)
@@ -112,7 +87,7 @@ function StatCard({ card, value, total, active, delay, onSelect }) {
           <span className="summary-glass-icon">
             <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
           </span>
-          <span className="summary-glass-label">{card.label}</span>
+          <span className="summary-glass-label">{label}</span>
         </div>
 
         {card.featured ? (
@@ -120,14 +95,17 @@ function StatCard({ card, value, total, active, delay, onSelect }) {
             <span className="summary-glass-number summary-glass-number-xl">
               {animated}
             </span>
-            <span className="summary-featured-caption">Active docket</span>
+            <span className="summary-featured-caption">{t("dashboard.activeDocket")}</span>
           </div>
         ) : (
           <div className="summary-glass-metric">
             <ProgressRing percent={percent} tone={card.tone}>
               <span className="summary-glass-number">{animated}</span>
             </ProgressRing>
-            <span className="summary-glass-pct">{percent}% of total</span>
+            <span className="summary-glass-pct">
+              {percent}
+              {t("dashboard.pctOfTotal")}
+            </span>
           </div>
         )}
       </div>
@@ -136,6 +114,7 @@ function StatCard({ card, value, total, active, delay, onSelect }) {
 }
 
 export default function SummaryCards({ stats, onSelect, activeKey }) {
+  const { t } = useLanguage()
   const total = Math.max(stats.total, 1)
 
   return (
@@ -148,9 +127,9 @@ export default function SummaryCards({ stats, onSelect, activeKey }) {
 
       <div className="summary-hero-header">
         <div className="summary-hero-title">
-          <span>Live overview</span>
+          <span>{t("dashboard.liveOverview")}</span>
         </div>
-        <p className="summary-hero-sub">Tap a metric to filter the docket</p>
+        <p className="summary-hero-sub">{t("dashboard.tapToFilter")}</p>
       </div>
 
       <div className="summary-hero-grid">
@@ -158,11 +137,13 @@ export default function SummaryCards({ stats, onSelect, activeKey }) {
           <StatCard
             key={card.key}
             card={card}
+            label={t(card.labelKey)}
             value={stats[card.key] || 0}
             total={total}
             active={activeKey === card.key}
             delay={index * 70}
             onSelect={onSelect}
+            t={t}
           />
         ))}
       </div>

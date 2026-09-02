@@ -1,11 +1,12 @@
 import { Menu, Plus } from "lucide-react"
 import Button from "../ui/Button"
+import { useLanguage } from "../../i18n/LanguageContext"
 
-const titles = {
-  dashboard: "Home",
-  cases: "All Cases",
-  archived: "Archived",
-  settings: "Settings",
+const pageKeys = {
+  dashboard: "page.home",
+  cases: "page.cases",
+  archived: "page.archived",
+  settings: "page.settings",
 }
 
 export default function PageHeader({
@@ -15,6 +16,8 @@ export default function PageHeader({
   showAdd = false,
   children,
 }) {
+  const { t } = useLanguage()
+
   return (
     <header className="page-header-bar flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 items-center gap-3">
@@ -27,7 +30,7 @@ export default function PageHeader({
           <Menu className="h-5 w-5" />
         </button>
         <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-          {titles[page] || titles.dashboard}
+          {t(pageKeys[page] || pageKeys.dashboard)}
         </h1>
       </div>
 
@@ -36,7 +39,7 @@ export default function PageHeader({
         {showAdd && onAdd && (
           <Button variant="primary" size="lg" onClick={onAdd} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" strokeWidth={2.5} />
-            Add case
+            {t("page.addCase")}
           </Button>
         )}
       </div>

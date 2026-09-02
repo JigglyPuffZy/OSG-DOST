@@ -13,6 +13,7 @@ import {
   getStatusUpdates,
   hasCaseNumber,
 } from "../utils/caseHelpers"
+import { useLanguage } from "../i18n/LanguageContext"
 
 const stripe = {
   Pending: "bg-amber-400",
@@ -28,6 +29,8 @@ export default function CaseCardList({
   onDelete,
   onArchive,
 }) {
+  const { t } = useLanguage()
+
   return (
     <div className="grid gap-3 md:hidden">
       {cases.map((item, index) => {
@@ -65,7 +68,7 @@ export default function CaseCardList({
                     ) : (
                       <span className="case-chip case-chip-warn">
                         <TriangleAlert className="h-3 w-3" />
-                        No docket
+                        {t("cases.noDocketShort")}
                       </span>
                     )}
                   </div>
@@ -83,7 +86,7 @@ export default function CaseCardList({
             {onEdit ? (
               <div className="case-card-actions" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="primary" className="flex-1" onClick={() => onView(item)}>
-                  Open
+                  {t("cases.open")}
                   <ChevronRight className="h-3.5 w-3.5" />
                 </Button>
                 <Button size="sm" onClick={() => onEdit(item)}>
