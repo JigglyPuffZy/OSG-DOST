@@ -118,7 +118,7 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
                       ) : (
                         <span className="inline-flex items-center gap-1 font-medium text-amber-700">
                           <TriangleAlert className="h-3 w-3" />
-                          No docket no.
+                          No docket
                         </span>
                       )}
                     </p>

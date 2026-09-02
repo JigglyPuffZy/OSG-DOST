@@ -90,7 +90,7 @@ export default function CaseTable({
                         ) : (
                           <span className="case-chip case-chip-warn">
                             <TriangleAlert className="h-3 w-3" />
-                            No docket no.
+                            No docket
                           </span>
                         )}
                         <span className="case-chip">

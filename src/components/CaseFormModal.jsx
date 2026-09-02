@@ -134,7 +134,7 @@ export default function CaseFormModal({ mode, caseItem, onClose, onSave }) {
         >
           <FormSection
             title="Case details"
-            hint="Required: case title only. Leave case number blank if not yet assigned."
+            hint="Required: case title only. Leave docket blank if not yet assigned."
           >
             <label className="field-label">
               Case title <span className="text-red-600">*</span>
@@ -156,11 +156,11 @@ export default function CaseFormModal({ mode, caseItem, onClose, onSave }) {
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="field-label">
-                Case number
+                Docket number
                 <input
                   value={form.caseNumber}
                   onChange={(event) => update("caseNumber", event.target.value)}
-                  placeholder="Leave blank if not assigned"
+                  placeholder="e.g. 2026-001 or leave blank"
                   className="field-input"
                 />
               </label>

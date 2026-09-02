@@ -249,7 +249,7 @@ export default function CaseFilters({
       <div className="filter-section">
         <p className="filter-section-title">
           <Hash className="h-3.5 w-3.5 text-dost-500" strokeWidth={2} />
-          Docket number
+          Docket
         </p>
         <PillGroup
           options={numberOptions}

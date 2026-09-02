@@ -50,7 +50,7 @@ export default function CaseRecordModal({
                 {caseItem.caseType || "Case"} ·{" "}
                 {hasCaseNumber(caseItem)
                   ? displayCaseNumber(caseItem)
-                  : "No case number yet"}
+                  : "No docket yet"}
               </p>
               <div className="mt-3">
                 <StatusBadge status={caseItem.status} />
@@ -88,12 +88,12 @@ export default function CaseRecordModal({
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="surface-muted px-4 py-3">
-              <p className="section-kicker">Case number</p>
+              <p className="section-kicker">Docket</p>
               <p className="mt-1 text-sm font-medium text-navy-900">
                 {hasCaseNumber(caseItem) ? (
                   displayCaseNumber(caseItem)
                 ) : (
-                  <span className="text-amber-800">Not Assigned</span>
+                  <span className="text-amber-800">No docket</span>
                 )}
               </p>
             </div>

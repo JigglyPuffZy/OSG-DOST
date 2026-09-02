@@ -7,7 +7,7 @@ export function hasCourt(caseItem) {
 }
 
 export function displayCaseNumber(caseItem) {
-  return hasCaseNumber(caseItem) ? caseItem.caseNumber.trim() : "Not Assigned"
+  return hasCaseNumber(caseItem) ? caseItem.caseNumber.trim() : "No docket"
 }
 
 export function displayCourt(caseItem) {
@@ -194,10 +194,10 @@ export function getActiveFilterChips(filters) {
     chips.push({ key: "status", label: `Status: ${filters.status}` })
   }
   if (filters.caseNumber === "with") {
-    chips.push({ key: "caseNumber", label: "With Case Number" })
+    chips.push({ key: "caseNumber", label: "Has docket" })
   }
   if (filters.caseNumber === "without") {
-    chips.push({ key: "caseNumber", label: "Without Case Number" })
+    chips.push({ key: "caseNumber", label: "No docket" })
   }
   return chips
 }
