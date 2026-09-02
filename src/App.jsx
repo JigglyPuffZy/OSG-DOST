@@ -21,6 +21,7 @@ import {
   getCaseStats,
   sortCasesForDisplay,
 } from "./utils/caseHelpers"
+import { exportCasesToExcel } from "./utils/exportCases"
 import {
   clearSavedCases,
   defaultSettings,
@@ -301,15 +302,8 @@ function AppShell({ authUser, useRemote, onLogout }) {
   }
 
   const handleExport = () => {
-    const blob = new Blob([JSON.stringify(cases, null, 2)], {
-      type: "application/json",
-    })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "osg-dost-cases.json"
-    link.click()
-    URL.revokeObjectURL(url)
+    const stamp = new Date().toISOString().slice(0, 10)
+    exportCasesToExcel(cases, `osg-dost-cases-${stamp}.xlsx`)
   }
 
   const handleLogout = async () => {

@@ -146,7 +146,7 @@ export default function SettingsPage({
         <SettingsCard
           icon={Database}
           title="Data"
-          description="Export and backup"
+          description="Download an Excel copy of the docket"
         >
           <div className="space-y-3">
             {!remoteData ? (
@@ -158,12 +158,12 @@ export default function SettingsPage({
               />
             ) : (
               <p className="text-sm text-navy-600">
-                Cases are stored in Supabase. Export a JSON backup below.
+                Cases are stored in Supabase. Download an Excel backup below.
               </p>
             )}
             <Button size="sm" onClick={onExport}>
               <Download className="h-4 w-4" />
-              Export cases
+              Export to Excel
             </Button>
           </div>
         </SettingsCard>
