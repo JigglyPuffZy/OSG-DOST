@@ -157,56 +157,82 @@ export default function CaseRecordModal({
             </section>
 
             <section>
-              <h2 className="text-base font-semibold text-navy-900">
+              <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-navy-900">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                  <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </span>
                 Status / Remarks
               </h2>
               {updates.length > 0 ? (
-                <ul className="mt-3 space-y-2.5">
-                  {updates.map((line) => (
-                    <li key={line} className="flex gap-3 text-[15px] leading-relaxed text-navy-700">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-navy-400" />
-                      {line}
-                    </li>
+                <div className="space-y-3">
+                  {updates.map((line, index) => (
+                    <div 
+                      key={line} 
+                      className="group relative rounded-lg border border-navy-100 bg-gradient-to-br from-white to-navy-50/30 p-4 transition-all hover:border-blue-200 hover:shadow-sm"
+                    >
+                      <div className="flex gap-3">
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+                          {index + 1}
+                        </div>
+                        <p className="flex-1 text-[15px] leading-relaxed text-navy-700">
+                          {line}
+                        </p>
+                      </div>
+                      <div className="absolute right-3 top-3 opacity-0 transition-opacity group-hover:opacity-100">
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <p className="mt-2 text-[15px] text-navy-600">
-                  {caseItem.remarks || "No remarks have been entered yet."}
-                </p>
+                <div className="rounded-lg border border-dashed border-navy-200 bg-navy-50/50 px-4 py-6 text-center">
+                  <p className="text-sm text-navy-600">
+                    {caseItem.remarks || "No remarks have been entered yet."}
+                  </p>
+                </div>
               )}
             </section>
 
             <section>
-              <h2 className="text-base font-semibold text-navy-900">
+              <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-navy-900">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+                  <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
                 Activity timeline
               </h2>
-              <ol className="mt-4 space-y-0">
-                {activity.map((event, index) => (
-                  <li
-                    key={`${event.date}-${event.label}-${index}`}
-                    className="relative flex gap-4 pb-6 last:pb-0"
-                  >
-                    {index < activity.length - 1 && (
-                      <span
-                        className="absolute left-[5px] top-3 h-full w-px bg-navy-200"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span
-                      className="relative z-10 mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-navy-400 ring-4 ring-white"
-                      aria-hidden="true"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-navy-900">
-                        {event.label}
-                      </p>
-                      <p className="mt-0.5 text-xs text-navy-500">
-                        {formatDate(event.date)}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-[13px] top-0 h-full w-0.5 bg-gradient-to-b from-purple-200 via-purple-300 to-transparent" aria-hidden="true" />
+                
+                <ol className="space-y-4">
+                  {activity.map((event, index) => (
+                    <li
+                      key={`${event.date}-${event.label}-${index}`}
+                      className="relative flex gap-4"
+                    >
+                      <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center">
+                        <div className="absolute inset-0 rounded-full bg-purple-100 ring-4 ring-white" />
+                        <div className="relative h-2 w-2 rounded-full bg-purple-600" />
+                      </div>
+                      <div className="flex-1 rounded-lg border border-navy-100 bg-white px-4 py-3 shadow-sm transition-all hover:border-purple-200 hover:shadow-md">
+                        <p className="text-sm font-semibold text-navy-900">
+                          {event.label}
+                        </p>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-navy-500">
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {formatDate(event.date)}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </section>
           </div>
         </div>
