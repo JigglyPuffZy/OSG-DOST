@@ -30,7 +30,7 @@ export default function EmptyState({ onClear, onAdd, variant = "filtered" }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         {isEmpty && onAdd ? (
-          <Button variant="primary" size="sm" onClick={onAdd}>
+          <Button variant="primary" size="sm" onClick={onAdd}> 
             <Plus className="h-4 w-4" />
             {t("empty.addFirst")}
           </Button>

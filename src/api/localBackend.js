@@ -1,4 +1,3 @@
-import { dummyCases } from "../data/dummyCase"
 import { createCaseId, todayISO } from "../utils/caseHelpers"
 import { DEFAULT_DISPLAY_NAME, DEFAULT_LOGIN_EMAIL } from "../utils/auth"
 import {
@@ -24,7 +23,7 @@ function writeStorage(cases) {
 
 function getMemoryCases() {
   if (!memoryCases) {
-    memoryCases = dummyCases.map((item) => ({ ...item }))
+    memoryCases = []
   }
   return memoryCases
 }
@@ -55,8 +54,7 @@ export async function fetchAllCases(keepLocalData = true) {
   if (keepLocalData) {
     const stored = readStorage()
     if (stored?.length) return stored
-    writeStorage(dummyCases)
-    return dummyCases.map((item) => ({ ...item }))
+    return []
   }
   return getMemoryCases().map((item) => ({ ...item }))
 }
