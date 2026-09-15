@@ -43,10 +43,10 @@ export function todayISO() {
 export function getCaseStats(cases) {
   return {
     total: cases.length,
-    pending: cases.filter((item) => item.status === "Pending").length,
-    ongoing: cases.filter((item) => item.status === "Ongoing").length,
-    closed: cases.filter((item) => item.status === "Closed").length,
-    archived: cases.filter((item) => item.status === "Archived").length,
+    pending: cases.filter((item) => item.status?.toLowerCase() === "pending").length,
+    ongoing: cases.filter((item) => item.status?.toLowerCase() === "ongoing").length,
+    closed: cases.filter((item) => item.status?.toLowerCase() === "closed").length,
+    archived: cases.filter((item) => item.status?.toLowerCase() === "archived").length,
     withoutNumber: cases.filter((item) => !hasCaseNumber(item)).length,
   }
 }

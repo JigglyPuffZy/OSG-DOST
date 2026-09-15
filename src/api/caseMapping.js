@@ -20,7 +20,8 @@ export function mapRowToCase(row) {
     paymentStatus: row.payment_status,
     amountDue: Number(row.amount_due) || 0,
     amountPaid: Number(row.amount_paid) || 0,
-    updates,
+    // Extract just the body text from update objects, or keep as-is if already strings
+    updates: updates.map(u => typeof u === 'string' ? u : u.body),
     activity: activity.map((entry) => ({
       date: entry.date,
       label: entry.label,
