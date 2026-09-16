@@ -205,7 +205,7 @@ VALUES (
   'Civil',
   'RTC-Branch 3, Tuguegarao City, Cagayan',
   'Plaintiff: Republic of the Philippines, rep. by DOST-RO2; Defendant: Rogelio T. Yapit',
-  'closed',
+  'ongoing',
   5,
   '2023-01-01',
   '2024-11-26'

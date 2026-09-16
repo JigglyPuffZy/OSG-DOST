@@ -66,7 +66,7 @@ export function filterCases(cases, filters) {
     const number = hasCaseNumber(item) ? item.caseNumber.toLowerCase() : ""
     const matchesSearch = !query || title.includes(query) || number.includes(query)
     const matchesStatus =
-      filters.status === "all" || item.status === filters.status
+      filters.status === "all" || item.status?.toLowerCase() === filters.status?.toLowerCase()
     const matchesNumber =
       filters.caseNumber === "all" ||
       (filters.caseNumber === "with" && hasCaseNumber(item)) ||
