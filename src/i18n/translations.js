@@ -16,6 +16,7 @@ export const translations = {
     "nav.home": "Home",
     "nav.cases": "All Cases",
     "nav.archived": "Archived",
+    "nav.deleted": "Recently Deleted",
     "nav.settings": "Settings",
     "nav.signOut": "Sign out",
 
@@ -32,6 +33,7 @@ export const translations = {
     "page.home": "Home",
     "page.cases": "All Cases",
     "page.archived": "Archived",
+    "page.deleted": "Recently Deleted",
     "page.settings": "Settings",
     "page.addCase": "Add case",
     "page.filters": "Filters",
@@ -152,6 +154,7 @@ export const translations = {
     "nav.home": "Home",
     "nav.cases": "Lahat ng Kaso",
     "nav.archived": "Naka-archive",
+    "nav.deleted": "Kamakailan Tinanggal",
     "nav.settings": "Mga Setting",
     "nav.signOut": "Mag-sign out",
 

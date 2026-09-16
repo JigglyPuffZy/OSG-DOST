@@ -1,10 +1,11 @@
-import { Archive, Briefcase, LayoutDashboard, Settings } from "lucide-react"
+import { Archive, Briefcase, LayoutDashboard, Settings, Trash2 } from "lucide-react"
 import { useLanguage } from "../../i18n/LanguageContext"
 
 const items = [
   { id: "dashboard", labelKey: "nav.home", icon: LayoutDashboard },
   { id: "cases", labelKey: "nav.cases", icon: Briefcase },
   { id: "archived", labelKey: "nav.archived", icon: Archive },
+  { id: "deleted", labelKey: "nav.deleted", icon: Trash2 },
   { id: "settings", labelKey: "nav.settings", icon: Settings },
 ]
 
@@ -16,7 +17,7 @@ export default function MobileNav({ page, onNavigate }) {
       className="fixed inset-x-2 bottom-3 z-40 rounded-2xl border border-slate-200 bg-white px-0.5 py-1 shadow-lg shadow-slate-200/60 lg:hidden"
       aria-label="Mobile navigation"
     >
-      <ul className="grid grid-cols-4">
+      <ul className="grid grid-cols-5">
         {items.map((item) => {
           const Icon = item.icon
           const active = page === item.id
