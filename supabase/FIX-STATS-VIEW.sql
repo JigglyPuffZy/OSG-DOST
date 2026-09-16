@@ -1,8 +1,3 @@
--- =============================================================================
--- FIX CASE STATS VIEW
--- =============================================================================
-
--- Drop and recreate the case_stats view
 DROP VIEW IF EXISTS case_stats CASCADE;
 
 CREATE OR REPLACE VIEW case_stats AS
@@ -15,10 +10,8 @@ SELECT
   COUNT(*) FILTER (WHERE case_number IS NULL OR case_number = '') AS without_number
 FROM cases;
 
--- Test the view
 SELECT * FROM case_stats;
 
--- Also check the raw data
 SELECT 
   status,
   COUNT(*) as count

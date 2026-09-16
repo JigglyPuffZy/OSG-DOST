@@ -18,7 +18,6 @@ export function LanguageProvider({ children }) {
     try {
       localStorage.setItem(LANGUAGE_KEY, value)
     } catch {
-      /* ignore */
     }
   }, [])
 

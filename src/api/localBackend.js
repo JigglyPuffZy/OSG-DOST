@@ -133,7 +133,6 @@ export async function ensureLocalProfile(user) {
       return withProfileDefaults(JSON.parse(raw))
     }
   } catch {
-    /* use defaults */
   }
 
   const profile = {

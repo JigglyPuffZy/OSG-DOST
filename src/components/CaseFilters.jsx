@@ -122,7 +122,7 @@ export default function CaseFilters({
 
   const statusOptions = [
     { value: "all", label: t("filters.all") },
-    ...STATUS_OPTIONS.filter((s) => s !== "Archived").map((s) => ({
+    ...STATUS_OPTIONS.filter((s) => s !== "Archived" && s !== "Closed").map((s) => ({
       value: s,
       label: t(`status.${s}`),
     })),

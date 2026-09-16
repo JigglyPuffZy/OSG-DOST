@@ -205,7 +205,6 @@ export default function CaseRecordModal({
                 Activity timeline
               </h2>
               <div className="relative">
-                {/* Timeline line */}
                 <div className="absolute left-[13px] top-0 h-full w-0.5 bg-gradient-to-b from-purple-200 via-purple-300 to-transparent" aria-hidden="true" />
                 
                 <ol className="space-y-4">
