@@ -7,7 +7,7 @@ export function hasCourt(caseItem) {
 }
 
 export function displayCaseNumber(caseItem) {
-  return hasCaseNumber(caseItem) ? caseItem.caseNumber.trim() : "No docket"
+  return hasCaseNumber(caseItem) ? caseItem.caseNumber.trim() : "No case number"
 }
 
 export function displayCourt(caseItem) {
