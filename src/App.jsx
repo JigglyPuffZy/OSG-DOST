@@ -152,6 +152,9 @@ function AppShell({ authUser, useRemote, onLogout }) {
     if (page === "archived") {
       return cases.filter((item) => item.status?.toLowerCase() === "archived")
     }
+    if (page === "deleted") {
+      return []
+    }
     if (page === "cases") {
       return cases.filter((item) => item.status?.toLowerCase() !== "archived")
     }
@@ -319,7 +322,8 @@ function AppShell({ authUser, useRemote, onLogout }) {
 
   const showCasesPage = page === "cases"
   const showArchivedPage = page === "archived"
-  const showDocketPage = showCasesPage || showArchivedPage
+  const showDeletedPage = page === "deleted"
+  const showDocketPage = showCasesPage || showArchivedPage || showDeletedPage
 
   if (dataLoading) {
     return <LoadingScreen message={t("app.loadingCases")} />
