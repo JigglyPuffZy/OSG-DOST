@@ -93,7 +93,7 @@ export default function CaseRecordModal({
                 {hasCaseNumber(caseItem) ? (
                   displayCaseNumber(caseItem)
                 ) : (
-                  <span className="text-amber-800">No docket</span>
+                  <span className="text-red-800">No case number</span>
                 )}
               </p>
             </div>

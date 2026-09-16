@@ -91,7 +91,7 @@ export default function CaseTable({
                             {item.caseNumber}
                           </span>
                         ) : (
-                          <span className="case-chip case-chip-warn">
+                          <span className="case-chip case-chip-danger">
                             <TriangleAlert className="h-3 w-3" />
                             {t("cases.noDocket")}
                           </span>

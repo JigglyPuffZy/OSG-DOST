@@ -150,10 +150,10 @@ function AppShell({ authUser, useRemote, onLogout }) {
 
   const pageCases = useMemo(() => {
     if (page === "archived") {
-      return cases.filter((item) => item.status === "Archived")
+      return cases.filter((item) => item.status?.toLowerCase() === "archived")
     }
     if (page === "cases") {
-      return cases.filter((item) => item.status !== "Archived")
+      return cases.filter((item) => item.status?.toLowerCase() !== "archived")
     }
     return cases
   }, [cases, page])
@@ -264,11 +264,11 @@ function AppShell({ authUser, useRemote, onLogout }) {
     if (!pendingArchive) return
     setActionError("")
     try {
-      const next = { ...pendingArchive, status: "Archived" }
+      const next = { ...pendingArchive, status: "archived" }
       const activity = buildActivity(pendingArchive, next, "edit")
       const updated = await updateCase(
         pendingArchive,
-        { status: "Archived" },
+        { status: "archived" },
         activity,
         cases,
       )

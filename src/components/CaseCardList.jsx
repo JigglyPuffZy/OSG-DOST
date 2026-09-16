@@ -66,7 +66,7 @@ export default function CaseCardList({
                         {item.caseNumber}
                       </span>
                     ) : (
-                      <span className="case-chip case-chip-warn">
+                      <span className="case-chip case-chip-danger">
                         <TriangleAlert className="h-3 w-3" />
                         {t("cases.noDocketShort")}
                       </span>

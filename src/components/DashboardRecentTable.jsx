@@ -119,7 +119,7 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
                       {hasCaseNumber(item) ? (
                         <span className="font-medium text-slate-700">{item.caseNumber}</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 font-medium text-amber-700">
+                        <span className="inline-flex items-center gap-1 font-medium text-red-700">
                           <TriangleAlert className="h-3 w-3" />
                           {t("cases.noDocketShort")}
                         </span>

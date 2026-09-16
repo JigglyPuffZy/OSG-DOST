@@ -190,6 +190,12 @@ h1, h2, h3, h4, .font-heading {
   color: #b45309;
 }
 
+.case-chip-danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
 .case-card-actions {
   display: flex;
   flex-wrap: wrap;
