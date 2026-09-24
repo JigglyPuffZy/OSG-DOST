@@ -1,0 +1,1194 @@
+/* Aura UI — asymmetric command canvas (not admin-dashboard pattern) */
+
+.aura-app {
+  position: relative;
+  min-height: 100vh;
+  color: #0f172a;
+}
+
+.aura-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 60% at 10% -10%, rgba(0, 173, 239, 0.14), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 95% 20%, rgba(99, 102, 241, 0.08), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0, 153, 214, 0.06), transparent 45%),
+    linear-gradient(180deg, #f8fafc 0%, #eef4f9 45%, #e8f2f8 100%);
+}
+
+.aura-mesh::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+/* ── Left rail nav ── */
+.aura-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 4.5rem;
+  height: 100vh;
+  padding: 1rem 0.625rem;
+  border-right: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+}
+
+.aura-rail-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 1.25rem;
+  border: none;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #00adef, #007db3);
+  box-shadow: 0 8px 24px rgba(0, 173, 239, 0.35);
+  cursor: pointer;
+}
+
+.aura-rail-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.aura-rail-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: none;
+  border-radius: 1rem;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 160ms, color 160ms, transform 160ms;
+}
+
+.aura-rail-link:hover {
+  background: rgba(15, 23, 42, 0.05);
+  color: #475569;
+}
+
+.aura-rail-link-active {
+  background: #0f172a;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.22);
+}
+
+.aura-rail-link-active:hover {
+  background: #1e293b;
+  color: #fff;
+}
+
+.aura-rail-badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  min-width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #f43f5e;
+  padding: 0 0.25rem;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.aura-rail-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.aura-rail-avatar {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Mobile bottom bar */
+.aura-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transform: translateX(-50%);
+  border-radius: 1.25rem;
+  background: rgba(15, 23, 42, 0.92);
+  padding: 0.375rem;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(16px);
+}
+
+.aura-dock-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: none;
+  border-radius: 1rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.aura-dock-link-active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.aura-dock-add {
+  background: linear-gradient(135deg, #00adef, #0099d6);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 173, 239, 0.4);
+}
+
+@media (min-width: 1024px) {
+  .aura-dock {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .aura-rail {
+    display: none;
+  }
+}
+
+/* ── Canvas ── */
+.aura-canvas {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 1rem 1rem 6rem;
+}
+
+@media (min-width: 1024px) {
+  .aura-canvas {
+    margin-left: 4.5rem;
+    padding: 1.5rem 2rem 2rem;
+  }
+}
+
+.aura-canvas-inner {
+  width: 100%;
+  max-width: 76rem;
+  margin: 0 auto;
+}
+
+.aura-enter {
+  animation: aura-rise 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes aura-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Top bar (page context) ── */
+.aura-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.aura-top-kicker {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0099d6;
+}
+
+.aura-top-title {
+  margin-top: 0.25rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #0f172a;
+}
+
+.aura-top-meta {
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  color: #64748b;
+}
+
+.aura-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aura-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(0, 173, 239, 0.1);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #007db3;
+}
+
+/* ── Buttons ── */
+.aura-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.875rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: transform 150ms, box-shadow 150ms, border-color 150ms;
+}
+
+.aura-btn:hover {
+  border-color: rgba(0, 173, 239, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 173, 239, 0.1);
+  transform: translateY(-1px);
+}
+
+.aura-btn-sm {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.aura-btn-ghost {
+  background: transparent;
+}
+
+.aura-btn-primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, #00adef, #0099d6);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 173, 239, 0.32);
+}
+
+.aura-btn-primary:hover {
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(0, 173, 239, 0.4);
+}
+
+.aura-btn-danger {
+  border-color: transparent;
+  background: #ef4444;
+  color: #fff;
+}
+
+.aura-btn-active {
+  border-color: rgba(0, 173, 239, 0.35);
+  background: rgba(0, 173, 239, 0.1);
+  color: #007db3;
+}
+
+/* ── Bento dashboard ── */
+.aura-bento {
+  display: grid;
+  gap: 0.875rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .aura-bento {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(7rem, auto));
+  }
+}
+
+.aura-bento-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 1.125rem;
+  text-align: left;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04);
+  transition: transform 200ms, box-shadow 200ms, border-color 200ms;
+}
+
+.aura-bento-cell:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 173, 239, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 173, 239, 0.12);
+}
+
+.aura-bento-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+  min-height: 12rem;
+  border: none;
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 50%, #0c4a6e 100%);
+  color: #fff;
+  cursor: default;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+
+.aura-bento-hero:hover {
+  transform: none;
+  border-color: transparent;
+}
+
+.aura-bento-hero-glow {
+  position: absolute;
+  top: -30%;
+  right: -20%;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(0, 173, 239, 0.45), transparent 70%);
+  pointer-events: none;
+}
+
+.aura-bento-hero-kicker {
+  position: relative;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.aura-bento-hero-title {
+  position: relative;
+  margin-top: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.aura-bento-hero-actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.aura-bento-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.aura-bento-hero-btn-primary {
+  background: rgba(0, 173, 239, 0.35);
+  border-color: rgba(0, 173, 239, 0.5);
+}
+
+.aura-bento-tall {
+  grid-row: span 2;
+}
+
+.aura-bento-wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 767px) {
+  .aura-bento-hero {
+    grid-column: span 2;
+    grid-row: span 1;
+    min-height: 10rem;
+  }
+
+  .aura-bento-tall {
+    grid-row: span 1;
+  }
+
+  .aura-bento-wide {
+    grid-column: span 2;
+  }
+}
+
+.aura-bento-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.aura-bento-value {
+  margin-top: 0.375rem;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.aura-bento-hint {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.aura-bento-cell-amber .aura-bento-value { color: #d97706; }
+.aura-bento-cell-sky .aura-bento-value { color: #2563eb; }
+.aura-bento-cell-green .aura-bento-value { color: #059669; }
+.aura-bento-cell-rose .aura-bento-value { color: #e11d48; }
+.aura-bento-cell-cyan .aura-bento-value { color: #0891b2; }
+
+.aura-bento-ring {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  width: 3rem;
+  height: 3rem;
+  opacity: 0.15;
+}
+
+/* ── Filmstrip (recent cases) ── */
+.aura-strip-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.aura-strip-head h2 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.aura-strip-head p {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.aura-strip-link {
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0099d6;
+  cursor: pointer;
+}
+
+.aura-filmstrip {
+  display: flex;
+  gap: 0.875rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.aura-filmstrip::-webkit-scrollbar {
+  display: none;
+}
+
+.aura-film-card {
+  flex: 0 0 min(18rem, 78vw);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+  transition: transform 200ms, box-shadow 200ms;
+}
+
+.aura-film-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 20px 48px rgba(0, 173, 239, 0.12);
+}
+
+.aura-film-card-main {
+  flex: 1;
+  display: block;
+  width: 100%;
+  padding: 1.125rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.aura-film-card-accent {
+  height: 3px;
+  background: linear-gradient(90deg, #00adef, #6366f1);
+}
+
+.aura-film-card-accent-pending { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.aura-film-card-accent-ongoing { background: linear-gradient(90deg, #3b82f6, #00adef); }
+.aura-film-card-accent-closed { background: linear-gradient(90deg, #10b981, #34d399); }
+.aura-film-card-accent-archived { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+
+.aura-film-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.aura-film-card-date {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.aura-film-card h3 {
+  font-family: var(--font-heading);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.aura-film-card-type {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.aura-film-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0099d6;
+}
+
+/* ── Docket list (cases page) ── */
+.aura-docket {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.aura-docket-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 180ms, transform 180ms;
+}
+
+.aura-docket-row:hover {
+  box-shadow: 0 12px 32px rgba(0, 173, 239, 0.1);
+  transform: translateX(4px);
+}
+
+@media (min-width: 768px) {
+  .aura-docket-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+.aura-docket-main {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
+}
+
+.aura-docket-accent {
+  width: 4px;
+  flex-shrink: 0;
+  background: #94a3b8;
+}
+
+.aura-docket-accent-pending { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
+.aura-docket-accent-ongoing { background: linear-gradient(180deg, #3b82f6, #00adef); }
+.aura-docket-accent-closed { background: linear-gradient(180deg, #10b981, #34d399); }
+.aura-docket-accent-archived { background: #cbd5e1; }
+
+.aura-docket-body {
+  flex: 1;
+  min-width: 0;
+  padding: 1rem 1rem 1rem 0.875rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.aura-docket-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.aura-docket-date {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.aura-docket-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+}
+
+.aura-docket-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.aura-docket-meta-warn {
+  color: #e11d48;
+  font-weight: 600;
+}
+
+.aura-docket-note {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #475569;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.aura-docket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0 1rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .aura-docket-actions {
+    padding: 1rem 1rem 1rem 0;
+    justify-content: flex-end;
+  }
+}
+
+.aura-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.625rem;
+  background: rgba(255, 255, 255, 0.8);
+  color: #475569;
+  cursor: pointer;
+}
+
+.aura-icon-btn:hover {
+  border-color: rgba(0, 173, 239, 0.25);
+  color: #007db3;
+}
+
+.aura-icon-btn-danger:hover {
+  border-color: #fecaca;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+/* ── Badges ── */
+.aura-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.aura-badge-pending { background: #fef3c7; color: #b45309; }
+.aura-badge-ongoing { background: #dbeafe; color: #1d4ed8; }
+.aura-badge-closed { background: #d1fae5; color: #047857; }
+.aura-badge-archived { background: #f1f5f9; color: #64748b; }
+
+/* ── Empty ── */
+.aura-empty {
+  padding: 3.5rem 1.5rem;
+  border: 1px dashed rgba(0, 173, 239, 0.25);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.aura-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(0, 173, 239, 0.15), rgba(99, 102, 241, 0.1));
+  color: #0099d6;
+}
+
+.aura-empty h3 {
+  margin-top: 1.125rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.aura-empty p {
+  margin: 0.5rem auto 0;
+  max-width: 26rem;
+  font-size: 0.9375rem;
+  color: #64748b;
+}
+
+.aura-empty-actions {
+  margin-top: 1.25rem;
+}
+
+/* ── Settings ── */
+.aura-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.aura-settings-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .aura-settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.aura-glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04);
+}
+
+.aura-glass-head {
+  padding: 1rem 1.125rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.aura-glass-head h2 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.aura-glass-head p {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.aura-glass-body {
+  padding: 1rem 1.125rem 1.125rem;
+}
+
+.aura-switch {
+  position: relative;
+  width: 2.75rem;
+  height: 1.625rem;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 9999px;
+  background: #cbd5e1;
+  cursor: pointer;
+}
+
+.aura-switch-on {
+  background: #00adef;
+}
+
+.aura-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+  transition: transform 180ms;
+}
+
+.aura-switch-on .aura-switch-thumb {
+  transform: translateX(1.125rem);
+}
+
+.aura-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem;
+  border-radius: 0.875rem;
+  background: rgba(248, 250, 252, 0.8);
+}
+
+/* ── Login ── */
+.aura-auth {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+}
+
+@media (min-width: 960px) {
+  .aura-auth {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+.aura-auth-visual {
+  position: relative;
+  display: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 3rem;
+  background: #0f172a;
+  overflow: hidden;
+}
+
+@media (min-width: 960px) {
+  .aura-auth-visual {
+    display: flex;
+  }
+}
+
+.aura-auth-visual-mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(0, 173, 239, 0.35), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(99, 102, 241, 0.25), transparent 40%);
+}
+
+.aura-auth-visual-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.aura-auth-visual-copy h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #fff;
+}
+
+.aura-auth-visual-copy p {
+  margin-top: 1rem;
+  max-width: 22rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.aura-auth-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+}
+
+.aura-auth-form-wrap {
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+}
+
+.aura-field span {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.aura-field input {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.875rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.8125rem 1rem;
+  font-size: 0.9375rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.aura-field input:focus {
+  border-color: #00adef;
+  box-shadow: 0 0 0 3px rgba(0, 173, 239, 0.12);
+}
+
+.aura-alert {
+  border-radius: 0.875rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #b91c1c;
+}
+
+/* ── Modals / overlay ── */
+.aura-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.aura-dialog {
+  width: 100%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.2);
+}
+
+.aura-dialog-sm { max-width: 24rem; }
+.aura-dialog-md { max-width: 32rem; }
+.aura-dialog-lg { max-width: 48rem; }
+
+.aura-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.aura-dialog-kicker {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0099d6;
+}
+
+.aura-dialog-title {
+  margin-top: 0.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.aura-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+/* ── Toast / loading ── */
+.aura-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 5.5rem;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.75rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.3);
+}
+
+@media (min-width: 1024px) {
+  .aura-toast {
+    bottom: 1.5rem;
+  }
+}
+
+.aura-loading {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.aura-loading-card {
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08);
+}
+
+/* Filter overrides */
+.aura-app .filter-panel {
+  border-radius: 1.25rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.aura-app .filter-panel-header {
+  background: rgba(255, 255, 255, 0.35) !important;
+}
+
+.aura-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.aura-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+.aura-sheet-panel {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: #fff;
+}
+
+.aura-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+}
+
+.aura-drawer-panel {
+  position: relative;
+  width: min(20rem, 88vw);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 8px 0 40px rgba(15, 23, 42, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aura-enter,
+  .aura-bento-cell,
+  .aura-film-card,
+  .aura-docket-row {
+    animation: none !important;
+    transition: none !important;
+  }
+}
