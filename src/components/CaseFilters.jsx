@@ -4,7 +4,7 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react"
-import { STATUS_OPTIONS } from "../data/cases"
+import { PAYMENT_OPTIONS, STATUS_OPTIONS } from "../data/cases"
 import Button from "./ui/Button"
 import { getActiveFilterChips } from "../utils/caseHelpers"
 import { useLanguage } from "../i18n/LanguageContext"
@@ -98,6 +98,7 @@ export default function CaseFilters({
   layout = "bar",
   hideStatus = false,
   title,
+  courtOptions = [],
 }) {
   const { t } = useLanguage()
   const panelTitle = title || t("filters.title")
@@ -117,12 +118,68 @@ export default function CaseFilters({
     if (key === "search") next.search = ""
     if (key === "status") next.status = "all"
     if (key === "caseNumber") next.caseNumber = "all"
+    if (key === "court") next.court = "all"
+    if (key === "paymentStatus") next.paymentStatus = "all"
+    if (key === "updatedThisWeek") next.updatedThisWeek = false
+    if (key === "hearingRange") {
+      next.hearingFrom = ""
+      next.hearingTo = ""
+    }
     onChange(next)
   }
 
+  const advancedFields = (
+    <>
+      <div className="filter-group">
+        <p className="filter-group-label">{t("filters.court")}</p>
+        <select
+          value={filters.court || "all"}
+          onChange={(event) => onChange({ ...filters, court: event.target.value })}
+          className="field-input"
+        >
+          <option value="all">{t("filters.all")}</option>
+          {courtOptions.map((court) => (
+            <option key={court} value={court}>{court}</option>
+          ))}
+        </select>
+      </div>
+      <div className="filter-group">
+        <p className="filter-group-label">{t("filters.payment")}</p>
+        <select
+          value={filters.paymentStatus || "all"}
+          onChange={(event) => onChange({ ...filters, paymentStatus: event.target.value })}
+          className="field-input"
+        >
+          <option value="all">{t("filters.all")}</option>
+          {PAYMENT_OPTIONS.map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      </div>
+      <label className="filter-checkbox-row">
+        <input
+          type="checkbox"
+          checked={Boolean(filters.updatedThisWeek)}
+          onChange={(event) => onChange({ ...filters, updatedThisWeek: event.target.checked })}
+        />
+        <span>{t("filters.updatedWeek")}</span>
+      </label>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="field-label">
+          {t("filters.hearingFrom")}
+          <input type="date" value={filters.hearingFrom || ""} onChange={(event) => onChange({ ...filters, hearingFrom: event.target.value })} className="field-input" />
+        </label>
+        <label className="field-label">
+          {t("filters.hearingTo")}
+          <input type="date" value={filters.hearingTo || ""} onChange={(event) => onChange({ ...filters, hearingTo: event.target.value })} className="field-input" />
+        </label>
+      </div>
+    </>
+  )
+
   const statusOptions = [
     { value: "all", label: t("filters.all") },
-    ...STATUS_OPTIONS.filter((s) => s !== "Archived" && s !== "Closed").map((s) => ({
+    ...STATUS_OPTIONS.filter((s) => s !== "Archived").map((s) => ({
       value: s,
       label: t(`status.${s}`),
     })),
@@ -226,6 +283,8 @@ export default function CaseFilters({
         {docketField}
       </div>
 
+      <div className="filter-advanced-block">{advancedFields}</div>
+
       <ActiveFilterBar
         chips={chips}
         onRemoveChip={removeChip}
@@ -267,6 +326,11 @@ export default function CaseFilters({
           value={filters.caseNumber}
           onChange={(caseNumber) => onChange({ ...filters, caseNumber })}
         />
+      </div>
+
+      <div className="filter-section">
+        <p className="filter-section-title">{t("filters.advanced")}</p>
+        <div className="filter-advanced-block">{advancedFields}</div>
       </div>
 
       <ActiveFilterBar

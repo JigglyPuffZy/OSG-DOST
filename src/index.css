@@ -148,6 +148,40 @@ h1, h2, h3, h4, .font-heading {
   cursor: pointer;
 }
 
+.case-card-main-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: default;
+}
+
+.case-card-leading {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex-shrink: 0;
+  padding-top: 0.125rem;
+}
+
+.case-card-checkbox {
+  height: 1rem;
+  width: 1rem;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #0099d6;
+}
+
+.case-card-body-btn {
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
 .case-card-num {
   display: flex;
   height: 2.25rem;
@@ -175,13 +209,173 @@ h1, h2, h3, h4, .font-heading {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  max-width: 100%;
   border-radius: 9999px;
   background: #f8fafc;
-  padding: 0.25rem 0.625rem;
+  padding: 0.3125rem 0.6875rem;
   font-size: 0.6875rem;
   font-weight: 500;
   color: #64748b;
   border: 1px solid #e2e8f0;
+}
+
+.case-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.case-chip-label {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.case-chip-value {
+  font-weight: 600;
+  color: #334155;
+}
+
+.case-chip-docket {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.case-chip-hearing {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0369a1;
+}
+
+.case-chip-hearing .case-chip-label {
+  color: #0284c7;
+}
+
+.case-chip-hearing .case-chip-value {
+  color: #0c4a6e;
+}
+
+.case-chip-hearing-urgent {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.case-chip-hearing-urgent .case-chip-label,
+.case-chip-hearing-urgent .case-chip-value {
+  color: #b91c1c;
+}
+
+.case-chip-soon {
+  margin-left: 0.125rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.125rem 0.4375rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.case-chip-hearing-urgent .case-chip-soon {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.case-chip-hearing-past {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.case-chip-hearing-past .case-chip-label,
+.case-chip-hearing-past .case-chip-value {
+  color: #475569;
+}
+
+.case-card-remark-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.case-chip-updated {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.case-card-remark-wrap {
+  margin-top: 0.75rem;
+}
+
+.case-card-remark {
+  margin-top: 0;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.case-card-remark-more {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0369a1;
+}
+
+.case-card-empty-note {
+  margin-top: 0.75rem;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+.case-chip-no-hearing {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #9a3412;
+}
+
+.case-chip-stage {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+.case-chip-no-hearing .case-chip-label {
+  color: #c2410c;
+}
+
+.field-hearing-block {
+  border-radius: 0.875rem;
+  border: 1px solid #bae6fd;
+  background: #f0f9ff;
+  padding: 0.75rem;
+}
+
+.field-input-hearing {
+  border-color: #7dd3fc !important;
+  background: white;
+}
+
+.field-label-note {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #0284c7;
 }
 
 .case-chip-warn {
@@ -200,6 +394,7 @@ h1, h2, h3, h4, .font-heading {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: flex-end;
   border-top: 1px solid #f1f5f9;
   background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
   padding: 0.625rem 1.25rem;
@@ -1470,3 +1665,141 @@ select.field-input {
   }
 }
 
+/* Attention panel */
+.attention-panel { padding: 1rem 1.25rem; }
+.attention-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+.attention-count { display: inline-flex; min-width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border-radius: 9999px; background: #e0f6fe; color: #007db3; font-size: 0.75rem; font-weight: 700; }
+.attention-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.attention-item { display: flex; width: 100%; align-items: center; gap: 0.75rem; border-radius: 0.875rem; border: 1px solid #e2e8f0; padding: 0.75rem 0.875rem; text-align: left; transition: border-color 150ms, background 150ms; }
+.attention-item:hover { border-color: rgba(0, 173, 239, 0.35); background: #f8fdff; }
+.attention-item-warning { background: #fffbeb; border-color: #fde68a; }
+.attention-item-urgent { background: #fef2f2; border-color: #fecaca; }
+.attention-item-info { background: #f0f9ff; border-color: #bae6fd; }
+.attention-item-icon { display: flex; height: 2rem; width: 2rem; align-items: center; justify-content: center; border-radius: 0.625rem; background: white; }
+
+/* Hearing calendar */
+.hearing-calendar { padding: 1rem 1.25rem 1.25rem; }
+.hearing-calendar-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem; }
+.hearing-calendar-nav { display: inline-flex; align-items: center; gap: 0.5rem; }
+.hearing-calendar-nav button { display: inline-flex; height: 2rem; width: 2rem; align-items: center; justify-content: center; border-radius: 0.625rem; border: 1px solid #e2e8f0; background: white; color: #475569; }
+.hearing-calendar-month { min-width: 9rem; text-align: center; font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+.hearing-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.375rem; }
+.hearing-calendar-weekday { text-align: center; font-size: 0.6875rem; font-weight: 700; color: #94a3b8; padding-bottom: 0.25rem; }
+.hearing-calendar-cell { min-height: 5.5rem; border-radius: 0.75rem; border: 1px solid #eef2f7; background: #fafcff; padding: 0.375rem; }
+.hearing-calendar-cell.empty { background: transparent; border-color: transparent; }
+.hearing-calendar-cell.today { border-color: #00adef; box-shadow: inset 0 0 0 1px rgba(0, 173, 239, 0.15); }
+.hearing-calendar-cell.has-events { min-height: 8.5rem; background: #f0f9ff; }
+.hearing-calendar-day { display: block; font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 0.125rem; }
+.hearing-calendar-event { display: block; width: 100%; margin-top: 0.25rem; overflow: hidden; text-align: left; border-radius: 0.5rem; background: white; padding: 0.3125rem 0.4375rem; font-size: 0.625rem; color: #0369a1; border: 1px solid #bae6fd; box-shadow: 0 1px 2px rgba(14, 116, 144, 0.08); }
+.hearing-calendar-event-kind { display: inline-block; margin-bottom: 0.125rem; border-radius: 9999px; background: #e0f2fe; padding: 0.0625rem 0.375rem; font-size: 0.5625rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: #0369a1; }
+.hearing-calendar-event-date { display: block; font-weight: 800; color: #0284c7; }
+.hearing-calendar-event-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #0c4a6e; font-weight: 700; font-size: 0.6875rem; line-height: 1.25; }
+.hearing-calendar-event-remark { display: -webkit-box; margin-top: 0.1875rem; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 0.625rem; line-height: 1.35; color: #475569; white-space: normal; }
+.hearing-calendar-event-remark.muted { font-style: italic; opacity: 0.85; }
+.hearing-calendar-event-past { opacity: 0.72; background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.hearing-calendar-event-past .hearing-calendar-event-date,
+.hearing-calendar-event-past .hearing-calendar-event-title { color: #64748b !important; }
+.hearing-calendar-help { margin-bottom: 0.75rem; border-radius: 0.75rem; background: #f8fdff; border: 1px solid #e0f2fe; padding: 0.625rem 0.875rem; font-size: 0.75rem; line-height: 1.5; color: #475569; }
+.hearing-calendar-toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; align-items: center; }
+.hearing-calendar-search-wrap { position: relative; flex: 1 1 16rem; }
+.hearing-calendar-search-icon { position: absolute; left: 0.75rem; top: 50%; width: 1rem; height: 1rem; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+.hearing-calendar-search-input { width: 100%; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: white; padding: 0.625rem 2.25rem 0.625rem 2.375rem; font-size: 0.8125rem; color: #0f172a; }
+.hearing-calendar-search-input:focus { outline: none; border-color: #00adef; box-shadow: 0 0 0 3px rgba(0, 173, 239, 0.12); }
+.hearing-calendar-search-clear { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); display: inline-flex; height: 1.75rem; width: 1.75rem; align-items: center; justify-content: center; border-radius: 9999px; color: #64748b; }
+.hearing-calendar-search-clear:hover { background: #f1f5f9; }
+.hearing-calendar-month-picker { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 600; color: #475569; }
+.hearing-calendar-month-picker input { border-radius: 0.625rem; border: 1px solid #e2e8f0; background: white; padding: 0.4375rem 0.625rem; font-size: 0.8125rem; color: #0f172a; }
+.hearing-calendar-search-note { margin: -0.375rem 0 0.75rem; font-size: 0.6875rem; color: #64748b; }
+.hearing-calendar-search-meta { margin-bottom: 0.625rem; font-size: 0.75rem; font-weight: 700; color: #0369a1; }
+.hearing-calendar-data-meta { margin-bottom: 0.625rem; font-size: 0.75rem; color: #64748b; }
+.hearing-calendar-hint { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.625rem; margin-bottom: 0.875rem; border-radius: 0.75rem; border: 1px dashed #fde68a; background: #fffbeb; padding: 0.625rem 0.875rem; font-size: 0.75rem; color: #92400e; }
+.hearing-calendar-hint-btn { border-radius: 0.625rem; background: #f59e0b; padding: 0.375rem 0.75rem; font-size: 0.6875rem; font-weight: 700; color: white; }
+.hearing-calendar-hint-btn:hover { background: #d97706; }
+.hearing-calendar-nav .hearing-calendar-today-btn { width: auto; height: auto; padding: 0.25rem 0.625rem; font-size: 0.6875rem; font-weight: 700; color: #0284c7; border-color: #bae6fd; }
+.hearing-calendar-month-count { border-radius: 9999px; background: #e0f6fe; padding: 0.125rem 0.5rem; font-size: 0.6875rem; font-weight: 700; color: #0369a1; }
+.hearing-calendar-hint-strong { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+.hearing-calendar-hint-info { border-style: solid; border-color: #bae6fd; background: #f0f9ff; color: #0369a1; }
+.hearing-calendar-grid-wrap.is-empty .hearing-calendar-cell:not(.has-events) { opacity: 0.72; }
+.hearing-calendar-cell.has-events { box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.18); }
+.hearing-calendar-empty { border-radius: 0.75rem; border: 1px dashed #e2e8f0; background: #fafcff; padding: 0.875rem 1rem; }
+.hearing-calendar-empty-title { font-size: 0.8125rem; font-weight: 700; color: #334155; }
+.hearing-calendar-empty-hint { margin-top: 0.375rem; font-size: 0.75rem; line-height: 1.5; color: #64748b; }
+.hearing-calendar-more { display: block; margin-top: 0.125rem; font-size: 0.625rem; color: #64748b; }
+.hearing-calendar-footer { margin-top: 1rem; border-top: 1px solid #eef2f7; padding-top: 0.875rem; }
+.hearing-calendar-list { display: flex; flex-direction: column; gap: 0.375rem; }
+.hearing-calendar-list-btn { display: grid; width: 100%; grid-template-columns: auto auto minmax(0, 1fr); align-items: start; gap: 0.5rem 0.75rem; border-radius: 0.625rem; padding: 0.625rem 0.75rem; text-align: left; font-size: 0.8125rem; }
+.hearing-calendar-list-body { min-width: 0; display: flex; flex-direction: column; gap: 0.125rem; }
+.hearing-calendar-list-title { font-weight: 700; color: #0f172a; }
+.hearing-calendar-list-remark { font-size: 0.75rem; line-height: 1.45; color: #475569; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hearing-calendar-list-court { font-size: 0.6875rem; color: #94a3b8; }
+.hearing-week-chip-remark { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.6875rem; line-height: 1.35; color: #64748b; }
+.hearing-calendar-list-date { flex-shrink: 0; min-width: 6.5rem; font-size: 0.75rem; font-weight: 700; color: #0f172a; }
+.hearing-calendar-list-when.past { color: #94a3b8; }
+.hearing-calendar-list-btn:hover { background: #f0f9ff; }
+
+/* Bulk actions */
+.bulk-action-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; border-radius: 0.875rem; border: 1px solid #bae6fd; background: #f0f9ff; padding: 0.75rem 1rem; }
+.bulk-clear-btn { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: #64748b; }
+
+/* Documents */
+.document-row { display: flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: white; padding: 0.375rem; }
+.document-row-main { display: flex; min-width: 0; flex: 1; align-items: center; gap: 0.625rem; padding: 0.375rem 0.5rem; text-align: left; }
+.document-row-delete { display: inline-flex; height: 2rem; width: 2rem; align-items: center; justify-content: center; border-radius: 0.5rem; color: #64748b; }
+.document-row-delete:hover { background: #fef2f2; color: #dc2626; }
+
+/* Filters advanced + selection */
+.filter-advanced-block { display: grid; gap: 0.875rem; margin-top: 0.875rem; padding-top: 0.875rem; border-top: 1px dashed #e2e8f0; }
+.filter-checkbox-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; color: #334155; }
+.case-card-selected { box-shadow: inset 0 0 0 2px rgba(0, 173, 239, 0.35); }
+.settings-card-wide { grid-column: 1 / -1; }
+.settings-export-grid { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+
+@media (min-width: 768px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Hearing alerts */
+.hearing-alerts { padding: 1rem 1.25rem; border-color: rgba(0, 173, 239, 0.2); background: linear-gradient(180deg, #f8fdff 0%, #ffffff 100%); }
+.hearing-alerts-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.875rem; }
+.hearing-alerts-title-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.hearing-alerts-icon { display: flex; height: 2.25rem; width: 2.25rem; align-items: center; justify-content: center; border-radius: 0.75rem; background: #e0f6fe; color: #007db3; }
+.hearing-alerts-count { display: inline-flex; min-width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border-radius: 9999px; background: #00adef; color: white; font-size: 0.75rem; font-weight: 700; }
+.hearing-alerts-prompt { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.875rem; border-radius: 0.75rem; border: 1px dashed #bae6fd; background: #f0f9ff; padding: 0.75rem 0.875rem; }
+.hearing-alerts-enable-btn { display: inline-flex; align-items: center; gap: 0.375rem; border-radius: 0.625rem; background: #00adef; padding: 0.5rem 0.875rem; font-size: 0.75rem; font-weight: 700; color: white; }
+.hearing-alerts-enable-btn:hover { background: #0099d6; }
+.hearing-alerts-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.hearing-alert-item { display: flex; width: 100%; align-items: center; gap: 0.75rem; border-radius: 0.875rem; border: 1px solid #e2e8f0; padding: 0.75rem 0.875rem; text-align: left; transition: border-color 150ms, transform 150ms; }
+.hearing-alert-item:hover { border-color: rgba(0, 173, 239, 0.35); transform: translateY(-1px); }
+.hearing-alert-badge { flex-shrink: 0; border-radius: 9999px; padding: 0.25rem 0.625rem; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; }
+.hearing-alert-today { background: #fef2f2; border-color: #fecaca; }
+.hearing-alert-today .hearing-alert-badge { background: #dc2626; color: white; }
+.hearing-alert-tomorrow { background: #fff7ed; border-color: #fed7aa; }
+.hearing-alert-tomorrow .hearing-alert-badge { background: #ea580c; color: white; }
+.hearing-alert-soon { background: #fffbeb; border-color: #fde68a; }
+.hearing-alert-soon .hearing-alert-badge { background: #d97706; color: white; }
+.hearing-alert-upcoming { background: #f0f9ff; border-color: #bae6fd; }
+.hearing-alert-upcoming .hearing-alert-badge { background: #0284c7; color: white; }
+.hearing-alerts-footnote { margin-top: 0.75rem; font-size: 0.75rem; color: #64748b; }
+
+.hearing-calendar-title-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.hearing-calendar-icon { display: flex; height: 2.25rem; width: 2.25rem; align-items: center; justify-content: center; border-radius: 0.75rem; background: #e0f6fe; color: #007db3; }
+.hearing-calendar-week-strip { margin-bottom: 1rem; border-radius: 0.875rem; border: 1px solid #e0f2fe; background: #f8fdff; padding: 0.875rem; }
+.hearing-calendar-week-label { margin-bottom: 0.625rem; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #64748b; }
+.hearing-calendar-week-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.hearing-week-chip { display: flex; max-width: 100%; flex-direction: column; align-items: flex-start; gap: 0.125rem; border-radius: 0.75rem; border: 1px solid #bae6fd; background: white; padding: 0.5rem 0.75rem; text-align: left; }
+.hearing-week-chip-when { font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
+.hearing-week-chip-title { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; font-weight: 600; color: #0f172a; }
+.hearing-week-chip-today { border-color: #fecaca; background: #fef2f2; }
+.hearing-week-chip-today .hearing-week-chip-when { color: #dc2626; }
+.hearing-week-chip-tomorrow { border-color: #fed7aa; background: #fff7ed; }
+.hearing-week-chip-tomorrow .hearing-week-chip-when { color: #ea580c; }
+.hearing-week-chip-soon { border-color: #fde68a; background: #fffbeb; }
+.hearing-week-chip-soon .hearing-week-chip-when { color: #d97706; }
+.hearing-week-chip-upcoming { border-color: #bae6fd; background: #f0f9ff; }
+.hearing-week-chip-upcoming .hearing-week-chip-when { color: #0284c7; }
+.hearing-calendar-cell.urgent { border-color: #fca5a5; background: #fff5f5; }
+.hearing-calendar-event-urgent { border-color: #f87171 !important; background: #fef2f2 !important; color: #b91c1c !important; }
+.hearing-calendar-list-when { flex-shrink: 0; min-width: 4.5rem; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: #0284c7; }
+.hearing-calendar-list-when.urgent { color: #dc2626; }

@@ -10,6 +10,7 @@ export const defaultSettings = {
   startPage: "dashboard",
   compactTable: false,
   keepLocalData: true,
+  hearingReminders: true,
 }
 
 export function withProfileDefaults(settings = {}) {

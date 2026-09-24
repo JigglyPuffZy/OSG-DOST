@@ -1,17 +1,19 @@
 import {
   Archive,
-  Calendar,
+  ArchiveRestore,
   ChevronRight,
   Pencil,
   Trash2,
-  TriangleAlert,
 } from "lucide-react"
 import StatusBadge from "./StatusBadge"
 import Button from "./ui/Button"
+import CaseMetaChips from "./CaseMetaChips"
 import {
-  formatDateShort,
-  getStatusUpdates,
-  hasCaseNumber,
+  getCaseCardNote,
+  getDisplayCaseNumber,
+  getLatestRemarkPreview,
+  getRemarkCount,
+  normalizeStatus,
 } from "../utils/caseHelpers"
 import { useLanguage } from "../i18n/LanguageContext"
 
@@ -28,16 +30,20 @@ export default function CaseCardList({
   onEdit,
   onDelete,
   onArchive,
+  onUnarchive,
+  isArchivedPage = false,
 }) {
   const { t } = useLanguage()
 
   return (
     <div className="grid gap-3 md:hidden">
       {cases.map((item, index) => {
-        const updates = getStatusUpdates(item)
-        const latestRemark = updates[0] || item.remarks || ""
-        const rowNumber = index + 1
-        const isArchived = item.status === "Archived"
+        const latestRemark = getLatestRemarkPreview(item, 140)
+        const extraRemarks = Math.max(getRemarkCount(item) - 1, 0)
+        const cardNote = getCaseCardNote(item, t)
+        const rowNumber = getDisplayCaseNumber(item, index + 1)
+        const status = normalizeStatus(item.status)
+        const isArchived = status === "Archived"
 
         return (
           <article
@@ -48,7 +54,7 @@ export default function CaseCardList({
               <div className="flex items-start gap-3">
                 <span className="case-card-num">{rowNumber}</span>
                 <div
-                  className={`mt-1 h-8 w-1 shrink-0 rounded-full ${stripe[item.status] || stripe.Archived}`}
+                  className={`mt-1 h-8 w-1 shrink-0 rounded-full ${stripe[status] || stripe.Archived}`}
                 />
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-start justify-between gap-2">
@@ -60,25 +66,20 @@ export default function CaseCardList({
                   {item.caseType ? (
                     <p className="mt-1 text-xs text-slate-500">{item.caseType}</p>
                   ) : null}
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {hasCaseNumber(item) ? (
-                      <span className="case-chip font-semibold text-slate-800">
-                        {item.caseNumber}
-                      </span>
-                    ) : (
-                      <span className="case-chip case-chip-danger">
-                        <TriangleAlert className="h-3 w-3" />
-                        {t("cases.noDocketShort")}
-                      </span>
-                    )}
-                  </div>
+                  <CaseMetaChips caseItem={item} showSoonBadge={false} compactLabels />
                   {latestRemark ? (
-                    <p className="mt-2 text-sm text-slate-600 line-clamp-2">{latestRemark}</p>
-                  ) : null}
-                  <p className="mt-2 text-xs text-slate-400">
-                    <Calendar className="mr-1 inline h-3 w-3" />
-                    {formatDateShort(item.lastUpdated)}
-                  </p>
+                    <div className="case-card-remark-wrap">
+                      <span className="case-card-remark-label">{t("cases.latestUpdate")}</span>
+                      <p className="case-card-remark">{latestRemark}</p>
+                      {extraRemarks > 0 ? (
+                        <span className="case-card-remark-more">
+                          + {extraRemarks} {t("cases.moreUpdates")}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p className="case-card-empty-note">{cardNote}</p>
+                  )}
                 </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
               </div>
@@ -95,6 +96,11 @@ export default function CaseCardList({
                 {!isArchived && onArchive ? (
                   <Button size="sm" onClick={() => onArchive(item)}>
                     <Archive className="h-3.5 w-3.5" />
+                  </Button>
+                ) : null}
+                {isArchivedPage && onUnarchive ? (
+                  <Button size="sm" onClick={() => onUnarchive(item)}>
+                    <ArchiveRestore className="h-3.5 w-3.5" />
                   </Button>
                 ) : null}
                 <Button size="sm" variant="danger" onClick={() => onDelete(item)}>

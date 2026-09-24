@@ -1,6 +1,6 @@
 import { SlidersHorizontal } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { createCase, deleteCase, fetchAllCases, updateCase, ensureProfile, saveProfile } from "./api"
+import { createCase, deleteCase, fetchAllCases, replaceAllCases, updateCase, ensureProfile, saveProfile } from "./api"
 import AppSidebar from "./components/layout/AppSidebar"
 import PageHeader from "./components/layout/PageHeader"
 import MobileNav from "./components/layout/MobileNav"
@@ -14,14 +14,27 @@ import SettingsPage from "./components/SettingsPage"
 import LoginPage from "./components/LoginPage"
 import EmptyState from "./components/EmptyState"
 import ConfirmDialog from "./components/ui/ConfirmDialog"
+import BulkActionBar from "./components/BulkActionBar"
 import {
   buildActivity,
   emptyFilters,
   filterCases,
+  findDuplicateDocket,
   getCaseStats,
+  getUniqueCourts,
+  normalizeCaseRecord,
+  normalizeStatus,
   sortCasesForDisplay,
 } from "./utils/caseHelpers"
-import { exportCasesToExcel } from "./utils/exportCases"
+import {
+  downloadJsonBackup,
+  exportAccomplishmentReport,
+  exportCasesSubsetToExcel,
+  exportCasesToExcel,
+  exportPaymentSummary,
+  parseJsonBackup,
+} from "./utils/exportCases"
+import { checkHearingReminders, getNotificationPermissionStatus, requestNotificationPermission } from "./utils/hearingReminders"
 import {
   clearSavedCases,
   defaultSettings,
@@ -41,6 +54,25 @@ import {
 import DostLogo from "./components/ui/DostLogo"
 import { useLanguage } from "./i18n/LanguageContext"
 
+const UI_STATE_KEY = "osg-dost-ui-state"
+
+function loadUiState() {
+  try {
+    const raw = sessionStorage.getItem(UI_STATE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function saveUiState(state) {
+  try {
+    sessionStorage.setItem(UI_STATE_KEY, JSON.stringify(state))
+  } catch {
+    /* ignore */
+  }
+}
+
 function LoadingScreen({ message = "Loading…" }) {
   return (
     <div className="app-page-bg flex min-h-screen flex-col items-center justify-center px-4">
@@ -58,7 +90,8 @@ function LoadingScreen({ message = "Loading…" }) {
 }
 
 function AppShell({ authUser, useRemote, onLogout }) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const savedUi = useRef(loadUiState())
   const [settings, setSettings] = useState(() =>
     useRemote ? { ...defaultSettings } : loadSettings(),
   )
@@ -67,8 +100,9 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const [dataLoading, setDataLoading] = useState(true)
   const [dataError, setDataError] = useState("")
   const [actionError, setActionError] = useState("")
-  const [filters, setFilters] = useState(emptyFilters)
+  const [filters, setFilters] = useState(() => savedUi.current?.filters || emptyFilters)
   const [page, setPage] = useState(() => {
+    if (savedUi.current?.page) return savedUi.current.page
     const start = useRemote ? defaultSettings.startPage : loadSettings().startPage || "dashboard"
     return start === "reports" ? "dashboard" : start
   })
@@ -79,62 +113,115 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const [editingCase, setEditingCase] = useState(null)
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingArchive, setPendingArchive] = useState(null)
+  const [pendingUnarchive, setPendingUnarchive] = useState(null)
   const [pendingLogout, setPendingLogout] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set())
 
-  const skipSettingsFlash = useRef(true)
+  const savedFlashTimer = useRef(null)
+  const skipSettingsPersist = useRef(true)
+  const hasHydratedRef = useRef(false)
+  const authUserKey = useRemote ? authUser?.id : authUser?.email ?? "local"
+  const [hasHydrated, setHasHydrated] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
+
+  const flashSaved = () => {
+    if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current)
+    setSavedFlash(true)
+    savedFlashTimer.current = setTimeout(() => setSavedFlash(false), 1200)
+  }
 
   useEffect(() => {
     if (useRemote && !authUser) return
 
     let cancelled = false
-    setDataLoading(true)
+    const isInitialLoad = !hasHydratedRef.current
+    if (isInitialLoad) setDataLoading(true)
     setDataError("")
 
     const keepLocalData = loadSettings().keepLocalData
 
     Promise.all([
       fetchAllCases(keepLocalData),
-      useRemote && authUser ? ensureProfile(authUser) : ensureProfile(authUser || { email: "admindost@gmail.com" }),
+      isInitialLoad
+        ? useRemote && authUser
+          ? ensureProfile(authUser)
+          : ensureProfile(authUser || { email: "admindost@gmail.com" })
+        : Promise.resolve(null),
     ])
       .then(([caseRows, profileSettings]) => {
         if (cancelled) return
-        setCases(caseRows)
-        const merged = withProfileDefaults(profileSettings)
-        setSettings(merged)
-        if (useRemote) {
-          const start = merged.startPage || "dashboard"
-          setPage(start === "reports" ? "dashboard" : start)
+        setCases(caseRows.map(normalizeCaseRecord))
+        if (profileSettings && isInitialLoad) {
+          skipSettingsPersist.current = true
+          const merged = withProfileDefaults(profileSettings)
+          setSettings(merged)
+          if (useRemote) {
+            const start = merged.startPage || "dashboard"
+            setPage(start === "reports" ? "dashboard" : start)
+          }
         }
       })
       .catch((err) => {
         if (!cancelled) setDataError(err.message || "Could not load data.")
       })
       .finally(() => {
-        if (!cancelled) setDataLoading(false)
+        if (!cancelled) {
+          setDataLoading(false)
+          hasHydratedRef.current = true
+          setHasHydrated(true)
+        }
       })
 
     return () => {
       cancelled = true
     }
-  }, [authUser, useRemote])
+  }, [authUserKey, useRemote, reloadKey])
 
   useEffect(() => {
-    if (useRemote) return
-    saveSettings(settings)
-    if (skipSettingsFlash.current) {
-      skipSettingsFlash.current = false
-      return
+    saveUiState({ page, filters })
+  }, [page, filters])
+
+  useEffect(() => {
+    if (useRemote) return undefined
+    if (skipSettingsPersist.current) {
+      skipSettingsPersist.current = false
+      return undefined
     }
-    setSavedFlash(true)
-    const timer = setTimeout(() => setSavedFlash(false), 1200)
+    const timer = setTimeout(() => saveSettings(settings), 400)
     return () => clearTimeout(timer)
   }, [settings, useRemote])
 
   useEffect(() => {
-    if (useRemote) return
-    if (settings.keepLocalData) saveCases(cases)
-    else clearSavedCases()
+    if (useRemote) return undefined
+    const timer = setTimeout(() => {
+      if (settings.keepLocalData) saveCases(cases)
+      else clearSavedCases()
+    }, 500)
+    return () => clearTimeout(timer)
   }, [cases, settings.keepLocalData, useRemote])
+
+  useEffect(() => {
+    if (!settings.hearingReminders || cases.length === 0) return undefined
+
+    const run = () => checkHearingReminders(cases, settings.hearingReminders, language)
+    const timer = setInterval(run, 30 * 60 * 1000)
+    let lastVisibleCheck = 0
+
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return
+      const now = Date.now()
+      if (now - lastVisibleCheck < 5 * 60 * 1000) return
+      lastVisibleCheck = now
+      run()
+    }
+    document.addEventListener("visibilitychange", onVisible)
+
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener("visibilitychange", onVisible)
+      if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current)
+    }
+  }, [cases, settings.hearingReminders, language])
 
   const user = useMemo(
     () => ({
@@ -146,17 +233,19 @@ function AppShell({ authUser, useRemote, onLogout }) {
     [settings.displayName, settings.role, settings.avatarUrl],
   )
 
+  const courtOptions = useMemo(() => getUniqueCourts(cases), [cases])
+
   const stats = useMemo(() => getCaseStats(cases), [cases])
 
   const pageCases = useMemo(() => {
     if (page === "archived") {
-      return cases.filter((item) => item.status?.toLowerCase() === "archived")
+      return cases.filter((item) => normalizeStatus(item.status) === "Archived")
     }
     if (page === "deleted") {
       return []
     }
     if (page === "cases") {
-      return cases.filter((item) => item.status?.toLowerCase() !== "archived")
+      return cases.filter((item) => normalizeStatus(item.status) !== "Archived")
     }
     return cases
   }, [cases, page])
@@ -172,7 +261,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const recentCases = useMemo(
     () =>
       [...cases]
-        .filter((item) => item.status !== "Archived")
+        .filter((item) => normalizeStatus(item.status) !== "Archived")
         .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated))
         .slice(0, 6),
     [cases],
@@ -191,6 +280,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const handleNavigate = (id) => {
     setPage(id)
     setMobileSidebar(false)
+    setSelectedIds(new Set())
     if (id === "cases" || id === "archived") setFilters(emptyFilters)
   }
 
@@ -217,15 +307,24 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const handleSave = async (payload) => {
     setActionError("")
     try {
+      const duplicate = findDuplicateDocket(
+        cases,
+        payload.caseNumber,
+        formMode === "edit" ? editingCase?.id : null,
+      )
+      if (duplicate) {
+        throw new Error(t("form.duplicateDocket", { title: duplicate.caseTitle }))
+      }
+
       if (formMode === "edit" && editingCase) {
-        const activity = buildActivity(editingCase, payload, "edit")
-        const updated = await updateCase(editingCase, payload, activity, cases)
+        const activity = buildActivity(editingCase, payload, "edit", user.displayName)
+        const updated = normalizeCaseRecord(await updateCase(editingCase, payload, activity, cases))
         setCases((current) =>
           current.map((item) => (item.id === updated.id ? updated : item)),
         )
       } else {
-        const activity = buildActivity(null, payload, "add")
-        const created = await createCase(payload, activity, cases)
+        const activity = buildActivity(null, payload, "add", user.displayName)
+        const created = normalizeCaseRecord(await createCase(payload, activity, cases))
         setCases((current) => [created, ...current])
         setFilters(emptyFilters)
         setPage("cases")
@@ -267,11 +366,15 @@ function AppShell({ authUser, useRemote, onLogout }) {
     if (!pendingArchive) return
     setActionError("")
     try {
-      const next = { ...pendingArchive, status: "archived" }
-      const activity = buildActivity(pendingArchive, next, "edit")
+      const activity = buildActivity(
+        pendingArchive,
+        { ...pendingArchive, status: "Archived" },
+        "edit",
+        user.displayName,
+      )
       const updated = await updateCase(
         pendingArchive,
-        { status: "archived" },
+        { status: "Archived" },
         activity,
         cases,
       )
@@ -279,13 +382,103 @@ function AppShell({ authUser, useRemote, onLogout }) {
         current.map((item) => (item.id === updated.id ? updated : item)),
       )
       setPendingArchive(null)
-      if (page === "cases") {
-        setPage("archived")
-      }
+      setSelectedIds(new Set())
+      if (page === "cases") setPage("archived")
     } catch (err) {
       setActionError(err?.message || "Could not archive the case.")
       setPendingArchive(null)
     }
+  }
+
+  const requestUnarchive = (item) => {
+    setPendingUnarchive(item)
+    if (filesCaseId === item.id) setFilesCaseId(null)
+  }
+
+  const confirmUnarchive = async () => {
+    if (!pendingUnarchive) return
+    setActionError("")
+    try {
+      const activity = buildActivity(
+        pendingUnarchive,
+        { ...pendingUnarchive, status: "Pending" },
+        "edit",
+        user.displayName,
+      )
+      const updated = await updateCase(
+        pendingUnarchive,
+        { status: "Pending" },
+        activity,
+        cases,
+      )
+      setCases((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      )
+      setPendingUnarchive(null)
+      if (page === "archived") setPage("cases")
+    } catch (err) {
+      setActionError(err?.message || "Could not restore the case.")
+      setPendingUnarchive(null)
+    }
+  }
+
+  const handleUpdateFiles = async (caseItem, files) => {
+    setActionError("")
+    try {
+      const activity = [
+        ...(caseItem.activity || []),
+        {
+          date: new Date().toISOString().slice(0, 10),
+          label: "Documents updated",
+          actor: user.displayName,
+        },
+      ]
+      const updated = await updateCase(caseItem, { files }, activity, cases)
+      setCases((current) => current.map((item) => (item.id === updated.id ? updated : item)))
+    } catch (err) {
+      setActionError(err?.message || "Could not update documents.")
+    }
+  }
+
+  const toggleSelect = (id) => {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const selectedCases = useMemo(
+    () => cases.filter((item) => selectedIds.has(item.id)),
+    [cases, selectedIds],
+  )
+
+  const bulkArchive = async () => {
+    setActionError("")
+    try {
+      let current = cases
+      for (const item of selectedCases) {
+        if (normalizeStatus(item.status) === "Archived") continue
+        const activity = buildActivity(
+          item,
+          { ...item, status: "Archived" },
+          "edit",
+          user.displayName,
+        )
+        const updated = await updateCase(item, { status: "Archived" }, activity, current)
+        current = current.map((row) => (row.id === updated.id ? updated : row))
+      }
+      setCases(current)
+      setSelectedIds(new Set())
+    } catch (err) {
+      setActionError(err?.message || "Could not archive selected cases.")
+    }
+  }
+
+  const bulkExport = () => {
+    const stamp = new Date().toISOString().slice(0, 10)
+    exportCasesSubsetToExcel(selectedCases, `osg-dost-selected-${stamp}.xlsx`)
   }
 
   const clearFilters = () => {
@@ -295,21 +488,63 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const handleSettingsChange = (next) => {
     const normalized = withProfileDefaults(next)
     setSettings(normalized)
-    saveProfile(normalized)
-      .then((savedProfile) => {
-        setSettings((current) => withProfileDefaults({ ...current, ...savedProfile }))
-        setSavedFlash(true)
-        setTimeout(() => setSavedFlash(false), 1200)
-      })
-      .catch(() => {
-        setDataError("Could not save settings.")
-      })
+
+    if (useRemote) {
+      saveProfile(normalized)
+        .then((savedProfile) => {
+          setSettings((current) => withProfileDefaults({ ...current, ...savedProfile }))
+          flashSaved()
+        })
+        .catch(() => {
+          setDataError("Could not save settings.")
+        })
+      return
+    }
+
+    flashSaved()
   }
 
   const handleExport = () => {
     const stamp = new Date().toISOString().slice(0, 10)
     exportCasesToExcel(cases, `osg-dost-cases-${stamp}.xlsx`)
   }
+
+  const handleExportAccomplishment = () => exportAccomplishmentReport(cases)
+  const handleExportPayment = () => exportPaymentSummary(cases)
+
+  const handleBackup = () => downloadJsonBackup(cases, settings)
+
+  const handleRestore = async (file) => {
+    const backup = await parseJsonBackup(file)
+    const restored = await replaceAllCases(backup.cases)
+    setCases(restored.map(normalizeCaseRecord))
+    if (backup.settings) {
+      handleSettingsChange(withProfileDefaults(backup.settings))
+    }
+  }
+
+  const handleEnableReminders = async (enabled) => {
+    if (enabled) {
+      const permission = await requestNotificationPermission()
+      if (permission !== "granted") {
+        setActionError(t("settings.remindersBlocked"))
+        return
+      }
+    }
+    handleSettingsChange({ ...settings, hearingReminders: enabled })
+  }
+
+  const handleEnableNotificationsFromHome = async () => {
+    const permission = await requestNotificationPermission()
+    if (permission === "granted") {
+      handleSettingsChange({ ...settings, hearingReminders: true })
+      checkHearingReminders(cases, true, language)
+    } else {
+      setActionError(t("settings.remindersBlocked"))
+    }
+  }
+
+  const notificationStatus = getNotificationPermissionStatus()
 
   const handleLogout = async () => {
     setPendingLogout(false)
@@ -325,11 +560,11 @@ function AppShell({ authUser, useRemote, onLogout }) {
   const showDeletedPage = page === "deleted"
   const showDocketPage = showCasesPage || showArchivedPage || showDeletedPage
 
-  if (dataLoading) {
+  if (!hasHydrated && dataLoading) {
     return <LoadingScreen message={t("app.loadingCases")} />
   }
 
-  if (dataError) {
+  if (dataError && !hasHydrated) {
     return (
       <div className="app-page-bg flex min-h-screen items-center justify-center px-4">
         <div className="surface-card-elevated max-w-md p-8 text-center">
@@ -337,7 +572,10 @@ function AppShell({ authUser, useRemote, onLogout }) {
           <button
             type="button"
             className="btn-primary-glow mt-5 rounded-xl px-5 py-2.5 text-sm font-semibold text-white"
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              setDataError("")
+              setReloadKey((value) => value + 1)
+            }}
           >
             {t("app.tryAgain")}
           </button>
@@ -395,22 +633,33 @@ function AppShell({ authUser, useRemote, onLogout }) {
 
           {page === "dashboard" && (
               <DashboardPage
+                cases={cases}
                 stats={stats}
                 recentCases={recentCases}
                 onCardSelect={handleCardSelect}
                 onAdd={openAdd}
                 onView={(item) => setFilesCaseId(item.id)}
                 onViewAllCases={() => handleNavigate("cases")}
+                onEnableNotifications={handleEnableNotificationsFromHome}
+                notificationStatus={notificationStatus}
               />
             )}
 
           {showDocketPage && (
             <section className="animate-fade-in space-y-4">
+              <BulkActionBar
+                count={selectedIds.size}
+                onClear={() => setSelectedIds(new Set())}
+                onArchive={showArchivedPage ? undefined : bulkArchive}
+                onExport={bulkExport}
+                showArchive={!showArchivedPage}
+              />
               <CaseFilters
                 layout="page"
                 filters={filters}
                 resultCount={visibleCases.length}
                 totalCount={pageCases.length}
+                courtOptions={courtOptions}
                 onChange={setFilters}
                 onApply={() => setMobileFilters(false)}
                 onClear={clearFilters}
@@ -430,17 +679,24 @@ function AppShell({ authUser, useRemote, onLogout }) {
                   <CaseTable
                     cases={visibleCases}
                     compact={settings.compactTable}
+                    selectable
+                    selectedIds={selectedIds}
+                    onToggleSelect={toggleSelect}
+                    isArchivedPage={showArchivedPage}
                     onView={(item) => setFilesCaseId(item.id)}
                     onEdit={openEdit}
                     onDelete={requestDelete}
                     onArchive={showArchivedPage ? undefined : requestArchive}
+                    onUnarchive={showArchivedPage ? requestUnarchive : undefined}
                   />
                   <CaseCardList
                     cases={visibleCases}
+                    isArchivedPage={showArchivedPage}
                     onView={(item) => setFilesCaseId(item.id)}
                     onEdit={openEdit}
                     onDelete={requestDelete}
                     onArchive={showArchivedPage ? undefined : requestArchive}
+                    onUnarchive={showArchivedPage ? requestUnarchive : undefined}
                   />
                 </>
               )}
@@ -452,6 +708,11 @@ function AppShell({ authUser, useRemote, onLogout }) {
                 settings={settings}
                 onChange={handleSettingsChange}
                 onExport={handleExport}
+                onExportAccomplishment={handleExportAccomplishment}
+                onExportPayment={handleExportPayment}
+                onBackup={handleBackup}
+                onRestore={handleRestore}
+                onEnableReminders={handleEnableReminders}
                 saved={savedFlash}
                 remoteData={useRemote}
               />
@@ -467,7 +728,9 @@ function AppShell({ authUser, useRemote, onLogout }) {
           onClose={() => setFilesCaseId(null)}
           onEdit={openEdit}
           onDelete={requestDelete}
-          onArchive={requestArchive}
+          onArchive={normalizeStatus(filesCase.status) === "Archived" ? undefined : requestArchive}
+          onUnarchive={normalizeStatus(filesCase.status) === "Archived" ? requestUnarchive : undefined}
+          onUpdateFiles={handleUpdateFiles}
         />
       )}
 
@@ -475,6 +738,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
         <CaseFormModal
           mode={formMode}
           caseItem={editingCase}
+          existingCases={cases}
           onClose={() => {
             setFormMode(null)
             setEditingCase(null)
@@ -508,6 +772,19 @@ function AppShell({ authUser, useRemote, onLogout }) {
         onConfirm={confirmArchive}
       />
       <ConfirmDialog
+        open={Boolean(pendingUnarchive)}
+        title={t("confirm.unarchiveTitle")}
+        message={
+          pendingUnarchive
+            ? t("confirm.unarchiveMessage", { title: pendingUnarchive.caseTitle })
+            : ""
+        }
+        confirmLabel={t("cases.unarchive")}
+        confirmVariant="primary"
+        onCancel={() => setPendingUnarchive(null)}
+        onConfirm={confirmUnarchive}
+      />
+      <ConfirmDialog
         open={pendingLogout}
         title={t("confirm.logoutTitle")}
         message={t("confirm.logoutMessage")}
@@ -539,7 +816,11 @@ export default function App() {
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthUser(session?.user ?? null)
+      setAuthUser((previous) => {
+        const next = session?.user ?? null
+        if (previous?.id === next?.id) return previous
+        return next
+      })
     })
 
     return () => listener.subscription.unsubscribe()

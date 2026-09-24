@@ -1,34 +1,71 @@
+import { normalizeDateISO } from "../utils/caseHelpers"
+
+function mapStatusUpdates(row) {
+  const raw = row.updates ?? row.status_updates
+  if (!raw) return []
+
+  let items = raw
+  if (typeof raw === "string") {
+    try {
+      items = JSON.parse(raw)
+    } catch {
+      return []
+    }
+  }
+
+  if (!Array.isArray(items)) return []
+
+  const normalized = items
+    .map((entry, index) => {
+      if (typeof entry === "string") {
+        return { sortOrder: index + 1, body: entry.trim() }
+      }
+      if (entry?.body) {
+        return {
+          sortOrder: Number(entry.sort_order ?? entry.sortOrder ?? index + 1),
+          body: String(entry.body).trim(),
+        }
+      }
+      return null
+    })
+    .filter((entry) => entry?.body)
+
+  return normalized
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((entry) => entry.body)
+}
+
 export function mapRowToCase(row) {
-  const updates = Array.isArray(row.updates) ? row.updates : []
+  const updates = mapStatusUpdates(row)
   const activity = Array.isArray(row.activity) ? row.activity : []
   const files = Array.isArray(row.files) ? row.files : []
 
   return {
     id: row.code,
     dbId: row.id,
+    reportCaseNumber: row.report_case_number ?? null,
     caseTitle: row.case_title,
     caseType: row.case_type,
     caseNumber: row.case_number,
     court: row.court,
     status: row.status,
     remarks: row.remarks,
-    filingDate: row.filing_date,
-    lastUpdated: row.last_updated,
-    hearingDate: row.hearing_date,
+    filingDate: normalizeDateISO(row.filing_date),
+    lastUpdated: normalizeDateISO(row.last_updated),
+    hearingDate: normalizeDateISO(row.hearing_date),
     parties: row.parties,
     story: row.story,
     paymentStatus: row.payment_status,
     amountDue: Number(row.amount_due) || 0,
     amountPaid: Number(row.amount_paid) || 0,
-    // Extract just the body text from update objects, or keep as-is if already strings
-    updates: updates.map(u => typeof u === 'string' ? u : u.body),
+    updates,
     activity: activity.map((entry) => ({
       date: entry.date,
       label: entry.label,
     })),
     files: files.map((file) => ({
       id: file.id,
-      name: file.name,
+      name: file.name ?? file.file_name,
       kind: file.kind,
     })),
   }

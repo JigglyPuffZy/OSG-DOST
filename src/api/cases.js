@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase"
-import { createCaseId } from "../utils/caseHelpers"
+import { createCaseId, normalizeCaseRecord } from "../utils/caseHelpers"
 import { mapCaseToRow, mapRowToCase } from "./caseMapping"
 
 function requireClient() {
@@ -17,7 +17,7 @@ export async function fetchAllCases() {
     .order("last_updated", { ascending: false })
 
   if (error) throw new Error(error.message)
-  return (data || []).map(mapRowToCase)
+  return (data || []).map(mapRowToCase).map(normalizeCaseRecord)
 }
 
 export async function fetchCaseStats() {

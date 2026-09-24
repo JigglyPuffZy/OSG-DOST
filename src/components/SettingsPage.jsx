@@ -1,10 +1,13 @@
+import { useRef, useState } from "react"
 import {
+  Bell,
   Check,
   Database,
   Download,
   Globe,
   Layout,
   Monitor,
+  Upload,
   User,
 } from "lucide-react"
 import Button from "./ui/Button"
@@ -40,9 +43,7 @@ function SettingsCard({ icon: Icon, title, description, children, className = ""
         <Icon className="settings-card-icon-simple h-4 w-4" strokeWidth={2} />
         <div className="min-w-0">
           <h2 className="settings-card-title">{title}</h2>
-          {description ? (
-            <p className="settings-card-desc">{description}</p>
-          ) : null}
+          {description ? <p className="settings-card-desc">{description}</p> : null}
         </div>
       </header>
       <div className="settings-card-body">{children}</div>
@@ -54,15 +55,34 @@ export default function SettingsPage({
   settings,
   onChange,
   onExport,
+  onExportAccomplishment,
+  onExportPayment,
+  onBackup,
+  onRestore,
+  onEnableReminders,
   saved,
   remoteData = false,
 }) {
   const { t } = useLanguage()
+  const restoreRef = useRef(null)
+  const [restoreError, setRestoreError] = useState("")
   const update = (field, value) => onChange({ ...settings, [field]: value })
   const profileUser = {
     displayName: settings.displayName,
     initials: initialsFromName(settings.displayName),
     avatarUrl: settings.avatarUrl || PROFILE_AVATAR_URL,
+  }
+
+  const handleRestoreFile = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file || !onRestore) return
+    setRestoreError("")
+    try {
+      await onRestore(file)
+    } catch (err) {
+      setRestoreError(err?.message || t("settings.restoreFailed"))
+    }
   }
 
   return (
@@ -75,9 +95,7 @@ export default function SettingsPage({
         </div>
         <div className="settings-hero-inner">
           <div className="settings-hero-copy">
-            <span className="settings-hero-badge">
-              {t("page.settings")}
-            </span>
+            <span className="settings-hero-badge">{t("page.settings")}</span>
             <p className="settings-hero-sub">
               {remoteData ? t("settings.autoSaveRemote") : t("settings.autoSaveLocal")}
             </p>
@@ -91,12 +109,7 @@ export default function SettingsPage({
         </div>
       </section>
 
-      <SettingsCard
-        icon={User}
-        title={t("settings.profile")}
-        description={t("settings.profileDesc")}
-        className="settings-card-profile"
-      >
+      <SettingsCard icon={User} title={t("settings.profile")} description={t("settings.profileDesc")} className="settings-card-profile">
         <div className="settings-profile-banner">
           <div className="settings-avatar-ring">
             <UserAvatar user={profileUser} className="h-20 w-20" />
@@ -110,63 +123,45 @@ export default function SettingsPage({
         <div className="settings-field-grid">
           <label className="field-label">
             {t("settings.displayName")}
-            <input
-              value={settings.displayName}
-              onChange={(event) => update("displayName", event.target.value)}
-              className="field-input"
-            />
+            <input value={settings.displayName} onChange={(event) => update("displayName", event.target.value)} className="field-input" />
           </label>
           <label className="field-label">
             {t("settings.role")}
-            <input
-              value={settings.role}
-              onChange={(event) => update("role", event.target.value)}
-              className="field-input"
-            />
+            <input value={settings.role} onChange={(event) => update("role", event.target.value)} className="field-input" />
           </label>
         </div>
       </SettingsCard>
 
       <div className="settings-grid">
-        <SettingsCard
-          icon={Layout}
-          title={t("settings.workspace")}
-          description={t("settings.workspaceDesc")}
-        >
+        <SettingsCard icon={Layout} title={t("settings.workspace")} description={t("settings.workspaceDesc")}>
           <label className="field-label">
             {t("settings.startOn")}
-            <select
-              value={settings.startPage}
-              onChange={(event) => update("startPage", event.target.value)}
-              className="field-input"
-            >
+            <select value={settings.startPage} onChange={(event) => update("startPage", event.target.value)} className="field-input">
               <option value="dashboard">{t("settings.startHome")}</option>
               <option value="cases">{t("settings.startCases")}</option>
             </select>
           </label>
         </SettingsCard>
 
-        <SettingsCard
-          icon={Globe}
-          title={t("settings.language")}
-          description={t("settings.languageDesc")}
-        >
+        <SettingsCard icon={Globe} title={t("settings.language")} description={t("settings.languageDesc")}>
           <div className="settings-lang-row">
             <div>
-              <p className="settings-lang-label">
-                {t("settings.english")} / {t("settings.tagalog")}
-              </p>
-              <p className="settings-lang-hint">{t("settings.languageDesc")}</p>
+              <p className="settings-lang-label">{t("settings.english")} / {t("settings.tagalog")}</p>
             </div>
             <LanguageToggle />
           </div>
         </SettingsCard>
 
-        <SettingsCard
-          icon={Monitor}
-          title={t("settings.display")}
-          description={t("settings.displayDesc")}
-        >
+        <SettingsCard icon={Bell} title={t("settings.reminders")} description={t("settings.remindersDesc")}>
+          <SettingsSwitch
+            checked={Boolean(settings.hearingReminders)}
+            onChange={(value) => onEnableReminders?.(value)}
+            label={t("settings.hearingReminders")}
+            hint={t("settings.hearingRemindersHint")}
+          />
+        </SettingsCard>
+
+        <SettingsCard icon={Monitor} title={t("settings.display")} description={t("settings.displayDesc")}>
           <SettingsSwitch
             checked={settings.compactTable}
             onChange={(value) => update("compactTable", value)}
@@ -175,11 +170,7 @@ export default function SettingsPage({
           />
         </SettingsCard>
 
-        <SettingsCard
-          icon={Database}
-          title={t("settings.data")}
-          description={t("settings.dataDesc")}
-        >
+        <SettingsCard icon={Database} title={t("settings.data")} description={t("settings.dataDesc")} className="settings-card-wide">
           <div className="settings-data-stack">
             {!remoteData ? (
               <SettingsSwitch
@@ -191,10 +182,21 @@ export default function SettingsPage({
             ) : (
               <p className="settings-data-note">{t("settings.supabaseBackup")}</p>
             )}
-            <Button variant="primary" size="md" onClick={onExport} className="settings-export-btn">
-              <Download className="h-4 w-4" />
-              {t("settings.exportExcel")}
-            </Button>
+            <div className="settings-export-grid">
+              <Button size="sm" variant="primary" onClick={onExport}>
+                <Download className="h-4 w-4" />
+                {t("settings.exportExcel")}
+              </Button>
+              <Button size="sm" onClick={onExportAccomplishment}>{t("settings.exportAccomplishment")}</Button>
+              <Button size="sm" onClick={onExportPayment}>{t("settings.exportPayment")}</Button>
+              <Button size="sm" onClick={onBackup}>{t("settings.backupJson")}</Button>
+              <Button size="sm" onClick={() => restoreRef.current?.click()}>
+                <Upload className="h-4 w-4" />
+                {t("settings.restoreJson")}
+              </Button>
+              <input ref={restoreRef} type="file" accept="application/json,.json" className="hidden" onChange={handleRestoreFile} />
+            </div>
+            {restoreError ? <p className="text-sm text-red-600">{restoreError}</p> : null}
           </div>
         </SettingsCard>
       </div>

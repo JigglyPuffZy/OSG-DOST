@@ -1,4 +1,4 @@
-import { createCaseId, todayISO } from "../utils/caseHelpers"
+import { createCaseId, normalizeCaseRecord, todayISO } from "../utils/caseHelpers"
 import { DEFAULT_DISPLAY_NAME, DEFAULT_LOGIN_EMAIL } from "../utils/auth"
 import {
   defaultSettings,
@@ -11,7 +11,7 @@ import {
 
 const LOCAL_PROFILE_KEY = "osg-dost-local-profile"
 
-let memoryCases = null
+let memoryCases = []
 
 function readStorage() {
   return loadSavedCases()
@@ -21,17 +21,6 @@ function writeStorage(cases) {
   saveCases(cases)
 }
 
-function getMemoryCases() {
-  if (!memoryCases) {
-    memoryCases = []
-  }
-  return memoryCases
-}
-
-function setMemoryCases(cases) {
-  memoryCases = cases.map((item) => ({ ...item }))
-}
-
 function resolveCaseList(currentCases, keepLocalData) {
   if (Array.isArray(currentCases) && currentCases.length > 0) {
     return currentCases.map((item) => ({ ...item }))
@@ -39,34 +28,33 @@ function resolveCaseList(currentCases, keepLocalData) {
   if (keepLocalData) {
     return readStorage() || []
   }
-  return getMemoryCases()
+  return memoryCases.map((item) => ({ ...item }))
 }
 
 function persistCases(next, keepLocalData) {
   if (keepLocalData) {
     writeStorage(next)
   } else {
-    setMemoryCases(next)
+    memoryCases = next.map((item) => ({ ...item }))
   }
 }
 
 export async function fetchAllCases(keepLocalData = true) {
   if (keepLocalData) {
     const stored = readStorage()
-    if (stored?.length) return stored
-    return []
+    return stored?.length ? stored.map(normalizeCaseRecord) : []
   }
-  return getMemoryCases().map((item) => ({ ...item }))
+  return memoryCases.map((item) => normalizeCaseRecord({ ...item }))
 }
 
 export async function createCase(payload, activity, currentCases) {
   const settings = loadSettings()
   const keepLocalData = settings.keepLocalData
   const id = createCaseId()
-  const created = {
+  const created = normalizeCaseRecord({
     id,
     ...payload,
-    files: [],
+    files: payload.files || [],
     lastUpdated: todayISO(),
     activity: activity || [],
     updates: payload.updates?.length
@@ -74,7 +62,7 @@ export async function createCase(payload, activity, currentCases) {
       : payload.remarks
         ? [payload.remarks]
         : [],
-  }
+  })
 
   const base = resolveCaseList(currentCases, keepLocalData)
   const next = [created, ...base.filter((item) => item.id !== created.id)]
@@ -85,13 +73,14 @@ export async function createCase(payload, activity, currentCases) {
 export async function updateCase(previous, payload, activity, currentCases) {
   const settings = loadSettings()
   const keepLocalData = settings.keepLocalData
-  const updated = {
+  const updated = normalizeCaseRecord({
     ...previous,
     ...payload,
     lastUpdated: todayISO(),
     activity: activity ?? previous.activity,
     updates: payload.updates ?? previous.updates,
-  }
+    files: payload.files ?? previous.files,
+  })
 
   const base = resolveCaseList(currentCases, keepLocalData)
   const exists = base.some((item) => item.id === previous.id)
@@ -120,7 +109,7 @@ export async function replaceAllCases(cases) {
   if (keepLocalData) {
     writeStorage(copy)
   } else {
-    setMemoryCases(copy)
+    memoryCases = copy
   }
 
   return copy
@@ -133,6 +122,7 @@ export async function ensureLocalProfile(user) {
       return withProfileDefaults(JSON.parse(raw))
     }
   } catch {
+    /* use defaults */
   }
 
   const profile = {
@@ -154,6 +144,7 @@ export async function saveLocalProfile(settings) {
     startPage: settings.startPage,
     compactTable: settings.compactTable,
     keepLocalData: settings.keepLocalData,
+    hearingReminders: settings.hearingReminders,
   })
   localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(payload))
   saveSettings(payload)
@@ -161,5 +152,5 @@ export async function saveLocalProfile(settings) {
 }
 
 export function resetMemoryStore() {
-  memoryCases = null
+  memoryCases = []
 }
