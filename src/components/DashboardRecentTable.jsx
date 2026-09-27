@@ -80,8 +80,8 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
           <tbody>
             {cases.map((item, index) => {
               const updates = getStatusUpdates(item)
-              const latestRemark = updates[0] || item.remarks || ""
-              const rowNumber = index + 1
+              const latestRemark = updates[updates.length - 1] || item.remarks || ""
+              const rowNumber = item.reportCaseNumber ?? index + 1
 
               return (
                 <tr
