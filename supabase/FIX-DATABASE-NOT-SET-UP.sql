@@ -8,9 +8,31 @@
 -- Pagkatapos: i-refresh ang app (o hard refresh sa browser)
 -- =============================================================================
 
--- Optional columns used by newer app versions (no-op if already exist)
+-- Columns required by the React app (your 43-case import may be missing some)
 ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
 ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS report_case_number integer;
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS hearing_date date;
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS parties text;
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS story text;
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS assigned_to text;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status') THEN
+    CREATE TYPE public.payment_status AS ENUM ('Unpaid', 'Partial', 'Paid', 'Not required');
+  END IF;
+END $$;
+
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS payment_status public.payment_status DEFAULT 'Unpaid';
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS amount_due numeric(14, 2) DEFAULT 0;
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS amount_paid numeric(14, 2) DEFAULT 0;
+
+UPDATE public.cases SET payment_status = 'Unpaid'::public.payment_status WHERE payment_status IS NULL;
+UPDATE public.cases SET amount_due = 0 WHERE amount_due IS NULL;
+UPDATE public.cases SET amount_paid = 0 WHERE amount_paid IS NULL;
+
+-- Tell PostgREST / Supabase API to refresh column list (fixes "schema cache" errors)
+NOTIFY pgrst, 'reload schema';
 
 DROP VIEW IF EXISTS public.case_stats CASCADE;
 DROP VIEW IF EXISTS public.cases_full CASCADE;
@@ -118,5 +140,9 @@ DROP POLICY IF EXISTS "anon_all_profiles" ON public.profiles;
 CREATE POLICY "anon_all_profiles" ON public.profiles
   FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
-SELECT 'OK — cases_full and case_stats ready. Refresh the app.' AS message;
+SELECT 'OK — columns, views, and permissions ready. Wait 10s, then hard-refresh the app.' AS message;
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public' AND table_name = 'cases'
+ORDER BY ordinal_position;
 SELECT * FROM public.case_stats;

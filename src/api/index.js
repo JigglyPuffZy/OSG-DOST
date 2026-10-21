@@ -15,8 +15,9 @@ function dbSetupMessage(error) {
     message.includes("cases_full") ||
     message.includes("case_stats") ||
     message.includes("profiles") ||
-    message.includes("relation") ||
+    message.includes("story") ||
     message.includes("schema cache") ||
+    message.includes("relation") ||
     message.includes("permission denied")
   ) {
     return `Database not set up or missing views/permissions. ${DB_SETUP_HINT} (${message})`
