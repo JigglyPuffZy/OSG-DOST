@@ -5,15 +5,21 @@ import * as local from "./localBackend"
 
 export const isRemoteBackend = isSupabaseConfigured
 
+const DB_SETUP_HINT =
+  "In Supabase → SQL Editor, run supabase/FIX-DATABASE-NOT-SET-UP.sql (safe; keeps your cases). " +
+  "Use supabase/SETUP.sql only for a brand-new empty project."
+
 function dbSetupMessage(error) {
   const message = error?.message || String(error)
   if (
     message.includes("cases_full") ||
     message.includes("case_stats") ||
+    message.includes("profiles") ||
     message.includes("relation") ||
-    message.includes("schema cache")
+    message.includes("schema cache") ||
+    message.includes("permission denied")
   ) {
-    return "Database not set up. In Supabase SQL Editor, run the full supabase/schema.sql file, then refresh."
+    return `Database not set up or missing views/permissions. ${DB_SETUP_HINT} (${message})`
   }
   return message
 }
