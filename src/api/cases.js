@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase"
 import { createCaseId, normalizeCaseRecord } from "../utils/caseHelpers"
-import { mapCaseToRow, mapRowToCase } from "./caseMapping"
+import { mapCaseToRow, mapRowToCase, mergeCasePayload } from "./caseMapping"
 
 function requireClient() {
   if (!supabase) {
@@ -106,31 +106,40 @@ export async function createCase(payload, activity) {
   return mapRowToCase(full)
 }
 
+async function resolveCaseDbId(client, previous) {
+  if (previous.dbId) return previous.dbId
+  const { data: match, error: lookupError } = await client
+    .from("cases")
+    .select("id")
+    .eq("code", previous.id)
+    .single()
+  if (lookupError) throw new Error(lookupError.message)
+  return match.id
+}
+
 export async function updateCase(previous, payload, activity) {
   const client = requireClient()
-  const row = mapCaseToRow(payload, previous.id)
+  const merged = mergeCasePayload(previous, payload)
+  if (Object.prototype.hasOwnProperty.call(payload, "updates")) {
+    const updates = Array.isArray(payload.updates) ? payload.updates : []
+    merged.updates = updates
+    merged.remarks = updates[0] || merged.remarks || null
+  }
+
+  const row = mapCaseToRow(merged, previous.id)
 
   const { error } = await client.from("cases").update(row).eq("code", previous.id)
   if (error) throw new Error(error.message)
 
-  const caseDbId = previous.dbId
-  if (!caseDbId) {
-    const { data: match, error: lookupError } = await client
-      .from("cases")
-      .select("id")
-      .eq("code", previous.id)
-      .single()
-    if (lookupError) throw new Error(lookupError.message)
-    await replaceStatusUpdates(match.id, payload.updates)
-    const previousCount = previous.activity?.length || 0
-    const newEntries = activity.slice(previousCount)
-    await insertActivity(match.id, newEntries)
-  } else {
-    await replaceStatusUpdates(caseDbId, payload.updates)
-    const previousCount = previous.activity?.length || 0
-    const newEntries = activity.slice(previousCount)
-    await insertActivity(caseDbId, newEntries)
+  const caseDbId = await resolveCaseDbId(client, previous)
+
+  if (Object.prototype.hasOwnProperty.call(payload, "updates")) {
+    await replaceStatusUpdates(caseDbId, merged.updates)
   }
+
+  const previousCount = previous.activity?.length || 0
+  const newEntries = activity.slice(previousCount)
+  await insertActivity(caseDbId, newEntries)
 
   const { data: full, error: fetchError } = await client
     .from("cases_full")

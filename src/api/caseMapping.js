@@ -71,7 +71,33 @@ export function mapRowToCase(row) {
   }
 }
 
+/** Merge a partial patch onto an existing case for safe Supabase updates. */
+export function mergeCasePayload(previous, patch) {
+  const base = {
+    caseTitle: previous.caseTitle,
+    caseType: previous.caseType,
+    caseNumber: previous.caseNumber,
+    court: previous.court,
+    hearingDate: previous.hearingDate,
+    assignedTo: previous.assignedTo,
+    status: previous.status,
+    remarks: previous.remarks,
+    filingDate: previous.filingDate,
+    parties: previous.parties,
+    story: previous.story,
+    paymentStatus: previous.paymentStatus,
+    amountDue: previous.amountDue,
+    amountPaid: previous.amountPaid,
+    updates: previous.updates,
+  }
+  return { ...base, ...patch }
+}
+
 export function mapCaseToRow(payload, code) {
+  const amountDue = Number(payload.amountDue) || 0
+  let amountPaid = Number(payload.amountPaid) || 0
+  if (amountPaid > amountDue) amountPaid = amountDue
+
   return {
     code,
     case_title: payload.caseTitle,
@@ -86,8 +112,8 @@ export function mapCaseToRow(payload, code) {
     parties: payload.parties || null,
     story: payload.story || null,
     payment_status: payload.paymentStatus,
-    amount_due: payload.amountDue ?? 0,
-    amount_paid: payload.amountPaid ?? 0,
+    amount_due: amountDue,
+    amount_paid: amountPaid,
   }
 }
 

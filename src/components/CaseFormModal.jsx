@@ -15,6 +15,7 @@ const emptyForm = {
   status: "Pending",
   remarks: "",
   updatesText: "",
+  newRemark: "",
   parties: "",
   story: "",
   paymentStatus: "Unpaid",
@@ -58,6 +59,7 @@ export default function CaseFormModal({
         status: caseItem.status || "Pending",
         remarks: caseItem.remarks || "",
         updatesText: getStatusUpdates(caseItem).join("\n"),
+        newRemark: "",
         parties: caseItem.parties || "",
         story: caseItem.story || "",
         paymentStatus: caseItem.paymentStatus || "Unpaid",
@@ -93,9 +95,11 @@ export default function CaseFormModal({
     }
 
     const updates = form.updatesText
-      .split("\n")
+      .split(/\r?\n/)
       .map((line) => line.replace(/^[-•]\s*/, "").trim())
       .filter(Boolean)
+    const appended = form.newRemark.trim()
+    if (appended) updates.push(appended)
     if (saving) return
     setSaving(true)
     const payload = {
@@ -230,6 +234,15 @@ export default function CaseFormModal({
 
           <FormSection title={t("form.remarks")} hint={t("form.remarksHint")}>
             <textarea rows={5} value={form.updatesText} onChange={(event) => update("updatesText", event.target.value)} className="field-input" />
+            <label className="field-label">
+              {t("form.addRemark")}
+              <input
+                value={form.newRemark}
+                onChange={(event) => update("newRemark", event.target.value)}
+                placeholder={t("form.addRemarkPlaceholder")}
+                className="field-input"
+              />
+            </label>
           </FormSection>
 
           {error ? (
