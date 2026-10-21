@@ -1,4 +1,8 @@
-import { normalizeDateISO } from "../utils/caseHelpers"
+import {
+  normalizeDateISO,
+  normalizePaymentStatus,
+  normalizeStatus,
+} from "../utils/caseHelpers"
 
 function mapStatusUpdates(row) {
   const raw = row.updates ?? row.status_updates
@@ -48,14 +52,14 @@ export function mapRowToCase(row) {
     caseType: row.case_type,
     caseNumber: row.case_number,
     court: row.court,
-    status: row.status,
+    status: normalizeStatus(row.status),
     remarks: row.remarks,
     filingDate: normalizeDateISO(row.filing_date),
     lastUpdated: normalizeDateISO(row.last_updated),
     hearingDate: normalizeDateISO(row.hearing_date),
     parties: row.parties,
     story: row.story,
-    paymentStatus: row.payment_status,
+    paymentStatus: normalizePaymentStatus(row.payment_status),
     amountDue: Number(row.amount_due) || 0,
     amountPaid: Number(row.amount_paid) || 0,
     updates,
@@ -104,14 +108,14 @@ export function mapCaseToRow(payload, code) {
     case_type: payload.caseType || "Civil Case",
     case_number: payload.caseNumber || null,
     court: payload.court || null,
-    status: payload.status,
+    status: normalizeStatus(payload.status),
     remarks: payload.remarks || null,
     filing_date: payload.filingDate || new Date().toISOString().slice(0, 10),
     last_updated: new Date().toISOString().slice(0, 10),
     hearing_date: payload.hearingDate || null,
     parties: payload.parties || null,
     story: payload.story || null,
-    payment_status: payload.paymentStatus,
+    payment_status: normalizePaymentStatus(payload.paymentStatus),
     amount_due: amountDue,
     amount_paid: amountPaid,
   }

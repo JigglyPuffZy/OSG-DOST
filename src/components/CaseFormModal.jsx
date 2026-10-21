@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 import { STATUS_OPTIONS, PAYMENT_OPTIONS } from "../data/cases"
-import { findDuplicateDocket, getStatusUpdates, normalizeDateISO, todayISO } from "../utils/caseHelpers"
+import {
+  findDuplicateDocket,
+  getStatusUpdates,
+  normalizeDateISO,
+  normalizePaymentStatus,
+  normalizeStatus,
+  todayISO,
+} from "../utils/caseHelpers"
 import { useLanguage } from "../i18n/LanguageContext"
 import Button from "./ui/Button"
 
@@ -56,13 +63,13 @@ export default function CaseFormModal({
         court: caseItem.court || "",
         hearingDate: normalizeDateISO(caseItem.hearingDate) || "",
         assignedTo: caseItem.assignedTo || "",
-        status: caseItem.status || "Pending",
+        status: normalizeStatus(caseItem.status),
         remarks: caseItem.remarks || "",
         updatesText: getStatusUpdates(caseItem).join("\n"),
         newRemark: "",
         parties: caseItem.parties || "",
         story: caseItem.story || "",
-        paymentStatus: caseItem.paymentStatus || "Unpaid",
+        paymentStatus: normalizePaymentStatus(caseItem.paymentStatus),
         amountDue: caseItem.amountDue ?? "",
         amountPaid: caseItem.amountPaid ?? "",
       })

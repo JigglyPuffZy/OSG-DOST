@@ -94,13 +94,26 @@ export function todayISO() {
 }
 
 export function normalizeStatus(status) {
-  if (!status) return ""
-  const lower = String(status).toLowerCase()
+  if (!status) return "Pending"
+  const lower = String(status).trim().toLowerCase()
   if (lower === "pending") return "Pending"
   if (lower === "ongoing") return "Ongoing"
   if (lower === "closed") return "Closed"
   if (lower === "archived") return "Archived"
-  return status
+  const title = lower.charAt(0).toUpperCase() + lower.slice(1)
+  if (["Pending", "Ongoing", "Closed", "Archived"].includes(title)) return title
+  return "Pending"
+}
+
+export function normalizePaymentStatus(status) {
+  if (!status) return "Unpaid"
+  const lower = String(status).trim().toLowerCase()
+  if (lower === "unpaid") return "Unpaid"
+  if (lower === "partial") return "Partial"
+  if (lower === "paid") return "Paid"
+  if (lower === "not required" || lower === "not_required") return "Not required"
+  if (["Unpaid", "Partial", "Paid", "Not required"].includes(status)) return status
+  return "Unpaid"
 }
 
 export function getCaseStats(cases) {
@@ -507,6 +520,8 @@ export function normalizeCaseRecord(caseItem) {
   const hearingDate = resolveCaseHearingDate(caseItem)
   return {
     ...caseItem,
+    status: normalizeStatus(caseItem.status),
+    paymentStatus: normalizePaymentStatus(caseItem.paymentStatus),
     hearingDate,
     filingDate: normalizeDateISO(caseItem.filingDate ?? caseItem.filing_date),
     lastUpdated: normalizeDateISO(caseItem.lastUpdated ?? caseItem.last_updated) || caseItem.lastUpdated,

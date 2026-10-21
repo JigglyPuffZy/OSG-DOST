@@ -9,15 +9,20 @@ function requireClient() {
   return supabase
 }
 
+function throwDbError(error, context = "Database request failed") {
+  const parts = [error?.message, error?.details, error?.hint].filter(Boolean)
+  throw new Error(parts.length ? parts.join(" — ") : context)
+}
+
 export async function fetchAllCases() {
   const client = requireClient()
-  const { data, error } = await client
-    .from("cases_full")
-    .select("*")
-    .order("last_updated", { ascending: false })
+  const { data, error } = await client.from("cases_full").select("*")
 
-  if (error) throw new Error(error.message)
-  return (data || []).map(mapRowToCase).map(normalizeCaseRecord)
+  if (error) throwDbError(error, "Could not load cases")
+  return (data || [])
+    .map(mapRowToCase)
+    .map(normalizeCaseRecord)
+    .sort((a, b) => String(b.lastUpdated || "").localeCompare(String(a.lastUpdated || "")))
 }
 
 export async function fetchCaseStats() {
@@ -52,18 +57,21 @@ async function replaceStatusUpdates(caseDbId, updates) {
     .delete()
     .eq("case_id", caseDbId)
 
-  if (deleteError) throw new Error(deleteError.message)
+  if (deleteError) throwDbError(deleteError, "Could not clear previous remarks")
 
-  if (!updates?.length) return
+  const bodies = (updates || [])
+    .map((line) => String(line ?? "").trim())
+    .filter(Boolean)
+  if (!bodies.length) return
 
-  const rows = updates.map((body, index) => ({
+  const rows = bodies.map((body, index) => ({
     case_id: caseDbId,
     sort_order: index + 1,
     body,
   }))
 
   const { error: insertError } = await client.from("case_status_updates").insert(rows)
-  if (insertError) throw new Error(insertError.message)
+  if (insertError) throwDbError(insertError, "Could not save remarks")
 }
 
 async function insertActivity(caseDbId, activityEntries) {
@@ -127,9 +135,10 @@ export async function updateCase(previous, payload, activity) {
   }
 
   const row = mapCaseToRow(merged, previous.id)
+  const { code: _ignoredCode, ...updateFields } = row
 
-  const { error } = await client.from("cases").update(row).eq("code", previous.id)
-  if (error) throw new Error(error.message)
+  const { error } = await client.from("cases").update(updateFields).eq("code", previous.id)
+  if (error) throwDbError(error, "Could not update case")
 
   const caseDbId = await resolveCaseDbId(client, previous)
 
