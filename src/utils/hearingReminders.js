@@ -1,4 +1,4 @@
-import { getUpcomingHearingsDetailed, getHearingUrgency } from "./caseHelpers"
+import { getUpcomingHearingsDetailed } from "./caseHelpers"
 
 const REMINDER_KEY = "osg-dost-hearing-reminders"
 const NOTIFY_THRESHOLDS = [7, 3, 1, 0]
@@ -89,5 +89,3 @@ export function getNotificationPermissionStatus() {
   if (!("Notification" in window)) return "unsupported"
   return Notification.permission
 }
-
-export { getHearingUrgency, getUpcomingHearingsDetailed }

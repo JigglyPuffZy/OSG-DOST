@@ -1,13 +1,5 @@
-import { Archive, Briefcase, LayoutDashboard, Settings, Trash2 } from "lucide-react"
 import { useLanguage } from "../../i18n/LanguageContext"
-
-const items = [
-  { id: "dashboard", labelKey: "nav.home", icon: LayoutDashboard },
-  { id: "cases", labelKey: "nav.cases", icon: Briefcase },
-  { id: "archived", labelKey: "nav.archived", icon: Archive },
-  { id: "deleted", labelKey: "nav.deleted", icon: Trash2 },
-  { id: "settings", labelKey: "nav.settings", icon: Settings },
-]
+import { NAV_ITEMS } from "./navItems"
 
 export default function MobileNav({ page, onNavigate }) {
   const { t } = useLanguage()
@@ -18,7 +10,7 @@ export default function MobileNav({ page, onNavigate }) {
       aria-label="Mobile navigation"
     >
       <ul className="grid grid-cols-5">
-        {items.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon
           const active = page === item.id
           return (

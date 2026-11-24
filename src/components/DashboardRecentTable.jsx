@@ -111,7 +111,7 @@ export default function DashboardRecentTable({ cases, onView, onViewAll }) {
                     </p>
                     <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
                       {item.caseType ? <span>{item.caseType}</span> : null}
-                      {item.caseType && (hasCaseNumber(item) || !hasCaseNumber(item)) ? (
+                      {item.caseType ? (
                         <span className="text-slate-300" aria-hidden="true">
                           ·
                         </span>

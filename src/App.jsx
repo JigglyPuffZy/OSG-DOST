@@ -29,7 +29,6 @@ import {
 import {
   downloadJsonBackup,
   exportAccomplishmentReport,
-  exportCasesSubsetToExcel,
   exportCasesToExcel,
   exportPaymentSummary,
   parseJsonBackup,
@@ -49,7 +48,6 @@ import { isSupabaseConfigured, supabase } from "./lib/supabase"
 import {
   clearLocalSession,
   loadLocalSession,
-  tryLocalLogin,
 } from "./utils/auth"
 import DostLogo from "./components/ui/DostLogo"
 import { useLanguage } from "./i18n/LanguageContext"
@@ -478,7 +476,7 @@ function AppShell({ authUser, useRemote, onLogout }) {
 
   const bulkExport = () => {
     const stamp = new Date().toISOString().slice(0, 10)
-    exportCasesSubsetToExcel(selectedCases, `osg-dost-selected-${stamp}.xlsx`)
+    exportCasesToExcel(selectedCases, `osg-dost-selected-${stamp}.xlsx`)
   }
 
   const clearFilters = () => {

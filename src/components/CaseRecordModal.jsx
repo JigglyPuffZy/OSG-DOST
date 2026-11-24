@@ -3,7 +3,7 @@ import StatusBadge from "./StatusBadge"
 import Button from "./ui/Button"
 import CaseDocuments from "./CaseDocuments"
 import { useLanguage } from "../i18n/LanguageContext"
-import { exportCasePdf } from "../utils/printCase"
+import { printCaseFile } from "../utils/printCase"
 import {
   displayCaseNumber,
   formatDate,
@@ -173,7 +173,7 @@ export default function CaseRecordModal({
                 {t("cases.unarchive")}
               </Button>
             ) : null}
-            <Button size="sm" onClick={() => exportCasePdf(caseItem)}>
+            <Button size="sm" onClick={() => printCaseFile(caseItem)}>
               <Printer className="h-4 w-4" />
               {t("record.print")}
             </Button>

@@ -1,5 +1,4 @@
 import {
-  displayCaseNumber,
   displayCourt,
   formatDate,
   formatMoney,
@@ -70,8 +69,4 @@ export function printCaseFile(caseItem) {
   win.document.close()
   win.focus()
   win.print()
-}
-
-export function exportCasePdf(caseItem) {
-  printCaseFile(caseItem)
 }

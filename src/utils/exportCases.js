@@ -3,7 +3,6 @@ import {
   displayCaseNumber,
   displayCourt,
   formatDate,
-  formatMoney,
   getAccomplishmentEntries,
   getPaymentSummary,
   getStatusUpdates,
@@ -174,10 +173,6 @@ export function exportPaymentSummary(cases, filename) {
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, "Payments")
   XLSX.writeFile(workbook, name)
-}
-
-export function exportCasesSubsetToExcel(cases, filename) {
-  exportCasesToExcel(cases, filename)
 }
 
 export function downloadJsonBackup(cases, settings) {

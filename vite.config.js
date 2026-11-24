@@ -8,7 +8,7 @@ export default defineConfig({
     hmr: false,
     watch: {
       usePolling: false,
-      ignored: ['**/node_modules/**', '**/.git/**', '**/supabase/**', '**/*.sql'],
+      ignored: ['**/node_modules/**', '**/.git/**', '**/supabase/**'],
     },
   },
   build: {

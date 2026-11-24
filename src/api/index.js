@@ -6,8 +6,7 @@ import * as local from "./localBackend"
 export const isRemoteBackend = isSupabaseConfigured
 
 const DB_SETUP_HINT =
-  "In Supabase → SQL Editor, run supabase/FIX-DATABASE-NOT-SET-UP.sql (safe; keeps your cases). " +
-  "Use supabase/SETUP.sql only for a brand-new empty project."
+  "Check the Supabase database schema, views, and access permissions."
 
 function dbSetupMessage(error) {
   const message = error?.message || String(error)
@@ -34,27 +33,6 @@ export async function fetchAllCases(keepLocalData = true) {
     }
   }
   return local.fetchAllCases(keepLocalData)
-}
-
-export async function fetchCaseStats() {
-  if (isRemoteBackend) {
-    try {
-      return await remoteCases.fetchCaseStats()
-    } catch (error) {
-      throw new Error(dbSetupMessage(error))
-    }
-  }
-  const cases = await local.fetchAllCases()
-  return {
-    total: cases.length,
-    pending: cases.filter((c) => c.status === "Pending").length,
-    ongoing: cases.filter((c) => c.status === "Ongoing").length,
-    closed: cases.filter((c) => c.status === "Closed").length,
-    archived: cases.filter((c) => c.status === "Archived").length,
-    withoutNumber: cases.filter(
-      (c) => !c.caseNumber || String(c.caseNumber).trim() === "",
-    ).length,
-  }
 }
 
 export async function createCase(payload, activity, currentCases) {

@@ -25,31 +25,6 @@ export async function fetchAllCases() {
     .sort((a, b) => String(b.lastUpdated || "").localeCompare(String(a.lastUpdated || "")))
 }
 
-export async function fetchCaseStats() {
-  const client = requireClient()
-  const { data, error } = await client.from("case_stats").select("*").maybeSingle()
-
-  if (error) throw new Error(error.message)
-  if (!data) {
-    return {
-      total: 0,
-      pending: 0,
-      ongoing: 0,
-      closed: 0,
-      archived: 0,
-      withoutNumber: 0,
-    }
-  }
-  return {
-    total: data.total,
-    pending: data.pending,
-    ongoing: data.ongoing,
-    closed: data.closed,
-    archived: data.archived,
-    withoutNumber: data.without_number,
-  }
-}
-
 async function replaceStatusUpdates(caseDbId, updates) {
   const client = requireClient()
   const { error: deleteError } = await client

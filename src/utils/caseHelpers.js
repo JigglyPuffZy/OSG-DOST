@@ -20,7 +20,7 @@ export function displayCourt(caseItem) {
   return hasCourt(caseItem) ? caseItem.court : "Not Assigned"
 }
 
-/** Normalize any date/datetime string to YYYY-MM-DD for storage and inputs. */
+/** Format a Date using its local calendar day. */
 export function toLocalISODate(date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, "0")
@@ -333,19 +333,6 @@ export function getHearingUrgency(daysLeft) {
   return "later"
 }
 
-export function getHearingsInMonth(cases, year, month) {
-  const prefix = `${year}-${String(month + 1).padStart(2, "0")}`
-  return cases
-    .filter((item) => normalizeStatus(item.status) !== "Archived")
-    .map((item) => {
-      const hearingDate = resolveCaseHearingDate(item)
-      if (!hearingDate?.startsWith(prefix)) return null
-      return hearingDate === item.hearingDate ? item : { ...item, hearingDate }
-    })
-    .filter(Boolean)
-    .sort((a, b) => resolveCaseHearingDate(a).localeCompare(resolveCaseHearingDate(b)))
-}
-
 function pickRemarkForDate(text, isoDate) {
   if (!text?.trim()) return ""
   const lines = String(text)
@@ -388,7 +375,7 @@ export function extractAllDatesFromText(text, referenceDate = new Date()) {
     const monthToken = match[1].toLowerCase().replace(/\.$/, "")
     const day = Number(match[2])
     const year = match[3] ? Number(match[3]) : referenceDate.getFullYear()
-    const monthIndex = INFER_MONTHS.findIndex((aliases) => aliases.includes(monthToken))
+    const monthIndex = MONTH_ALIASES.findIndex((aliases) => aliases.includes(monthToken))
     if (monthIndex >= 0 && day >= 1 && day <= 31) {
       found.add(`${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`)
     }
@@ -476,18 +463,6 @@ export function matchesCalendarEntrySearch(entry, query) {
   return matchesHearingSearch(entry.caseItem, query) || entry.remark.toLowerCase().includes(query.trim().toLowerCase())
 }
 
-export function buildHearingsByDayMap(monthHearings) {
-  const map = new Map()
-  monthHearings.forEach((item) => {
-    const normalized = resolveCaseHearingDate(item)
-    const day = Number(normalized?.slice(8, 10))
-    if (!day) return
-    if (!map.has(day)) map.set(day, [])
-    map.get(day).push(item)
-  })
-  return map
-}
-
 export function resolveCalendarViewMonth(cases, referenceDate = new Date()) {
   const current = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1)
   const currentEntries = getCalendarEntriesInMonth(cases, current.getFullYear(), current.getMonth())
@@ -526,50 +501,6 @@ export function normalizeCaseRecord(caseItem) {
     filingDate: normalizeDateISO(caseItem.filingDate ?? caseItem.filing_date),
     lastUpdated: normalizeDateISO(caseItem.lastUpdated ?? caseItem.last_updated) || caseItem.lastUpdated,
   }
-}
-
-const INFER_MONTHS = [
-  ["january", "jan"],
-  ["february", "feb"],
-  ["march", "mar"],
-  ["april", "apr"],
-  ["may", "may"],
-  ["june", "jun"],
-  ["july", "jul"],
-  ["august", "aug"],
-  ["september", "sep", "sept"],
-  ["october", "oct"],
-  ["november", "nov"],
-  ["december", "dec"],
-]
-
-export function inferHearingDateFromText(text, referenceDate = new Date()) {
-  if (!text?.trim()) return null
-  const source = String(text)
-
-  const isoMatch = source.match(/\b(20\d{2}-\d{2}-\d{2})\b/)
-  if (isoMatch) return normalizeDateISO(isoMatch[1])
-
-  const slashMatch = source.match(/\b(\d{1,2})\/(\d{1,2})\/(20\d{2})\b/)
-  if (slashMatch) {
-    const [, mm, dd, yyyy] = slashMatch
-    return normalizeDateISO(`${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`)
-  }
-
-  const namedMatch = source.match(
-    /\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(20\d{2}))?\b/i,
-  )
-  if (namedMatch) {
-    const monthToken = namedMatch[1].toLowerCase()
-    const day = Number(namedMatch[2])
-    const year = namedMatch[3] ? Number(namedMatch[3]) : referenceDate.getFullYear()
-    const monthIndex = INFER_MONTHS.findIndex((aliases) => aliases.includes(monthToken))
-    if (monthIndex >= 0 && day >= 1 && day <= 31) {
-      return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-    }
-  }
-
-  return null
 }
 
 const HEARING_LINE_REGEX =
@@ -774,7 +705,7 @@ export function getStatusUpdates(caseItem) {
   const raw = caseItem?.updates ?? caseItem?.statusUpdates ?? caseItem?.status_updates
   if (Array.isArray(raw) && raw.length) {
     return raw
-      .map((entry, index) => {
+      .map((entry) => {
         if (typeof entry === "string") return entry.trim()
         if (entry?.body) return String(entry.body).trim()
         return ""
@@ -943,18 +874,6 @@ export function matchesHearingSearch(caseItem, query) {
     (period && updates.includes(MONTH_NAMES[period.month])) ||
     (period && period.year && updates.includes(String(period.year)))
   )
-}
-
-export function getAllScheduledHearings(cases) {
-  return cases
-    .filter((item) => normalizeStatus(item.status) !== "Archived")
-    .map((item) => {
-      const hearingDate = resolveCaseHearingDate(item)
-      if (!hearingDate) return null
-      return hearingDate === item.hearingDate ? item : { ...item, hearingDate }
-    })
-    .filter(Boolean)
-    .sort((a, b) => resolveCaseHearingDate(a).localeCompare(resolveCaseHearingDate(b)))
 }
 
 export function getAccomplishmentEntries(cases, withinDays = 30) {
